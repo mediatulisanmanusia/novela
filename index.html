@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="id" class="dark overflow-x-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LOMBA NOVELA — PT MEDIA TULISAN MANUSIA</title>
+    
+    <!-- Favicon & PWA Manifest (Menggunakan logo.png & manifest.json) -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#14161b" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NOVELA MTM">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            DEFAULT: '#c59b27',
+                            light: '#e5c158',
+                            dark: '#9a7414',
+                        },
+                        silver: {
+                            DEFAULT: '#94a3b8',
+                            light: '#e2e8f0',
+                            dark: '#475569'
+                        },
+                        charcoal: {
+                            DEFAULT: '#14161b',
+                            deep: '#0c0d10',
+                            card: '#1a1d24',
+                            border: '#2a2e39'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js & html2pdf.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+        .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+        .font-serif-novel { font-family: 'Merriweather', serif; }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .premium-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+        }
+        .dark .premium-card {
+            background: linear-gradient(145deg, #1b1e26 0%, #13151b 100%);
+            border: 1px solid #2e3340;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.65);
+        }
+
+        .premium-input {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+        }
+        .dark .premium-input {
+            background: #0e1015;
+            border: 1px solid #2e3340;
+            color: #f8fafc;
+        }
+        .premium-input:focus {
+            border-color: #c59b27 !important;
+            outline: none;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #9a7414 100%);
+            color: #0c0d10;
+            font-weight: 800;
+            box-shadow: 0 4px 15px -3px rgba(197, 155, 39, 0.35);
+        }
+        .btn-gold:hover { filter: brightness(1.08); }
+        .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-silver {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            color: #f8fafc;
+            border: 1px solid #64748b;
+        }
+        .dark .btn-silver {
+            background: linear-gradient(135deg, #262a34 0%, #1a1d24 100%);
+            color: #e2e8f0;
+            border: 1px solid #373c4b;
+        }
+
+        @media print {
+            body * { visibility: hidden !important; }
+            #modalPreviewDokumen, #modalPreviewDokumen * { visibility: visible !important; }
+            #areaDokumenCetak {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .no-print-modal { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-200/70 dark:bg-charcoal-deep text-slate-800 dark:text-slate-100 min-h-screen flex flex-col pb-16" 
+      x-data="novelaApp()" 
+      x-init="initApp()">
+
+    <!-- =================================================================== -->
+    <!-- OVERLAY MEMUAT & NOTIFIKASI                                         -->
+    <!-- =================================================================== -->
+    <div x-show="isGlobalLoading" x-transition.opacity.duration.150ms class="fixed inset-0 z-[999] bg-black/75 backdrop-blur-sm flex flex-col items-center justify-center no-print" style="display: none;">
+        <div class="premium-card p-6 rounded-2xl flex flex-col items-center justify-center space-y-3 shadow-2xl border border-gold/40">
+            <div class="w-10 h-10 rounded-full border-4 border-gold border-t-transparent animate-spin"></div>
+            <p class="text-xs font-bold tracking-wider uppercase text-slate-700 dark:text-slate-200" x-text="loadingText || 'Memproses...'"></p>
+        </div>
+    </div>
+
+    <div x-show="showToast" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-8" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-8" class="no-print fixed top-4 left-1/2 -translate-x-1/2 z-[1000] bg-charcoal/95 backdrop-blur-md text-gold-light font-bold px-4 py-2.5 rounded-xl shadow-2xl text-xs tracking-wide border border-gold/40 flex items-center space-x-2" style="display: none;">
+        <i class="fa-solid fa-circle-check text-gold"></i>
+        <span x-text="toastMessage"></span>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- MODAL PENGATURAN DATABASE GOOGLE SHEETS                             -->
+    <!-- =================================================================== -->
+    <div x-show="showModalConfig" x-transition class="fixed inset-0 z-[400] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 no-print" style="display: none;">
+        <div class="premium-card w-full max-w-md rounded-2xl overflow-hidden shadow-2xl border border-charcoal-border">
+            <div class="bg-charcoal text-white px-4 py-3.5 flex items-center justify-between border-b border-charcoal-border">
+                <div class="flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-gold/20 text-gold-light flex items-center justify-center">
+                        <i class="fa-solid fa-database text-xs"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-bold text-xs sm:text-sm">Server Google Sheets</h3>
+                        <p class="text-[10px] text-slate-400">PT Media Tulisan Manusia</p>
+                    </div>
+                </div>
+                <button @click="showModalConfig = false" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Tautan Google Apps Script</label>
+                    <input type="url" x-model="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full premium-input rounded-xl px-3 py-2.5 text-xs font-mono-code">
+                </div>
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" @click="showModalConfig = false" class="w-1/2 py-2.5 rounded-xl font-bold text-xs btn-silver">Batal</button>
+                    <button type="button" @click="saveScriptUrl()" class="w-1/2 py-2.5 rounded-xl text-xs btn-gold flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Simpan</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- MODAL ADMIN: TAMBAH AKUN PESERTA MANUAL (UNTUK YANG SUDAH DAFTAR)   -->
+    <!-- =================================================================== -->
+    <div x-show="showModalAddPeserta" x-transition class="fixed inset-0 z-[380] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 no-print" style="display: none;">
+        <div class="premium-card w-full max-w-md rounded-2xl overflow-hidden shadow-2xl border border-gold/40">
+            <div class="bg-charcoal text-white px-4 py-3.5 flex items-center justify-between border-b border-charcoal-border">
+                <div class="flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-gold/20 text-gold-light flex items-center justify-center">
+                        <i class="fa-solid fa-user-plus text-xs"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-bold text-xs sm:text-sm">Buat Akun Peserta</h3>
+                        <p class="text-[10px] text-slate-400">Otomatis masuk ke Google Sheets</p>
+                    </div>
+                </div>
+                <button @click="showModalAddPeserta = false" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form @submit.prevent="simpanPesertaManual()" class="p-4 space-y-3 text-xs">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Nama Lengkap *</label>
+                        <input type="text" x-model="manualForm.nama" required placeholder="Nama peserta" class="w-full premium-input rounded-xl px-3 py-2 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Nama Pena</label>
+                        <input type="text" x-model="manualForm.namaPena" placeholder="Nama pena" class="w-full premium-input rounded-xl px-3 py-2 font-bold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Email Login *</label>
+                        <input type="email" x-model="manualForm.email" required placeholder="email@peserta.com" class="w-full premium-input rounded-xl px-3 py-2 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Sandi Akun *</label>
+                        <input type="text" x-model="manualForm.password" required placeholder="Sandi login" class="w-full premium-input rounded-xl px-3 py-2 font-mono-code font-bold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">No. WhatsApp *</label>
+                        <input type="text" x-model="manualForm.wa" required placeholder="08xxxxxxxxxx" class="w-full premium-input rounded-xl px-3 py-2 font-mono-code font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Asal Kota</label>
+                        <input type="text" x-model="manualForm.kota" placeholder="Malang" class="w-full premium-input rounded-xl px-3 py-2 font-bold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Rencana Judul Novela</label>
+                    <input type="text" x-model="manualForm.rencanaJudul" placeholder="Judul sementara" class="w-full premium-input rounded-xl px-3 py-2 font-bold">
+                </div>
+                <label class="flex items-center space-x-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
+                    <input type="checkbox" x-model="manualForm.isVerified" class="w-4 h-4 rounded text-emerald-500">
+                    <span class="font-bold text-emerald-400 text-[11px]">Langsung Centang Aktif (Bisa Kumpul Karya)</span>
+                </label>
+                <div class="flex space-x-2 pt-2">
+                    <button type="button" @click="showModalAddPeserta = false" class="w-1/2 py-2.5 rounded-xl font-bold btn-silver">Batal</button>
+                    <button type="submit" class="w-1/2 py-2.5 rounded-xl btn-gold">Simpan Akun</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- MODAL CETAK BUKTI PENGUMPULAN KARYA                                 -->
+    <!-- =================================================================== -->
+    <div id="modalPreviewDokumen" x-show="showPrintModal" x-transition.opacity class="fixed inset-0 z-[350] bg-black/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto" style="display: none;">
+        <div class="bg-white dark:bg-charcoal-card w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-300 dark:border-charcoal-border overflow-hidden my-auto flex flex-col max-h-[94vh]">
+            <div class="bg-charcoal text-white px-4 py-3 flex items-center justify-between border-b border-charcoal-border no-print-modal shrink-0">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-gold/20 text-gold-light flex items-center justify-center border border-gold/30">
+                        <i class="fa-solid fa-certificate text-sm"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-bold text-xs sm:text-sm" x-text="previewTitle">Bukti Karya</h3>
+                        <p class="text-[10px] text-slate-400">PT Media Tulisan Manusia</p>
+                    </div>
+                </div>
+                <button @click="showPrintModal = false" class="w-8 h-8 rounded-lg bg-charcoal-card text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-3 sm:p-6 overflow-y-auto bg-slate-200 dark:bg-black/60 flex-1 flex justify-center">
+                <div id="areaDokumenCetak" class="bg-white text-slate-900 w-full max-w-[760px] p-6 sm:p-8 rounded-xl shadow-lg border border-slate-300" x-html="previewHtml"></div>
+            </div>
+            <div class="bg-slate-100 dark:bg-charcoal px-4 py-3 border-t border-slate-300 dark:border-charcoal-border flex items-center justify-end gap-2 no-print-modal shrink-0">
+                <button type="button" @click="showPrintModal = false" class="px-4 py-2 rounded-xl font-bold text-xs btn-silver">Tutup</button>
+                <button type="button" @click="window.print()" class="px-4 py-2 rounded-xl font-bold text-xs bg-slate-700 hover:bg-slate-600 text-white shadow flex items-center space-x-1.5">
+                    <i class="fa-solid fa-print"></i><span>Cetak</span>
+                </button>
+                <button type="button" @click="unduhDokumenPDF()" class="px-5 py-2 rounded-xl text-xs btn-gold flex items-center space-x-1.5">
+                    <i class="fa-solid fa-file-pdf"></i><span>Unduh PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- MODAL PERIKSA & NILAI KARYA (KHUSUS ADMIN)                          -->
+    <!-- =================================================================== -->
+    <div x-show="showAdminInspectModal" x-transition.opacity class="fixed inset-0 z-[320] bg-black/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto" style="display: none;">
+        <div class="premium-card w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl border border-gold/40 my-auto flex flex-col max-h-[94vh]" x-show="selectedPeserta">
+            <div class="bg-charcoal px-5 py-4 flex items-center justify-between border-b border-charcoal-border shrink-0">
+                <div class="flex items-center space-x-3">
+                    <span class="w-9 h-9 rounded-xl bg-gold/20 text-gold-light flex items-center justify-center border border-gold/40">
+                        <i class="fa-solid fa-book-open-reader text-sm"></i>
+                    </span>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h3 class="font-black text-sm sm:text-base text-white" x-text="selectedPeserta?.karya ? selectedPeserta.karya.judul : selectedPeserta?.nama"></h3>
+                            <span class="px-2 py-0.5 text-[10px] font-mono-code font-bold rounded bg-gold/20 text-gold-light border border-gold/30" x-text="selectedPeserta?.id"></span>
+                        </div>
+                        <p class="text-[11px] text-silver" x-text="selectedPeserta ? (selectedPeserta.nama + ' • ' + selectedPeserta.email) : ''"></p>
+                    </div>
+                </div>
+                <button @click="showAdminInspectModal = false" class="w-8 h-8 rounded-xl bg-charcoal-card text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1">
+                <template x-if="!selectedPeserta?.karya">
+                    <div class="p-8 text-center rounded-2xl border border-dashed border-slate-400 dark:border-charcoal-border space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-400"></i>
+                        <p class="text-sm font-bold">Peserta belum mengumpulkan karya novela.</p>
+                        <p class="text-xs text-slate-400">Rencana Judul Saat Daftar: <b class="text-gold-light" x-text="selectedPeserta?.rencanaJudul || '-'"></b></p>
+                    </div>
+                </template>
+
+                <template x-if="selectedPeserta?.karya">
+                    <div class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Sampul Depan & Belakang -->
+                            <div class="grid grid-cols-2 gap-2.5 bg-slate-100 dark:bg-charcoal-deep p-3 rounded-2xl border border-slate-300 dark:border-charcoal-border">
+                                <div class="text-center">
+                                    <span class="text-[10px] font-extrabold uppercase text-gold-dark dark:text-gold-light block mb-1.5">Cover Depan</span>
+                                    <div class="aspect-[2/3] rounded-xl overflow-hidden bg-charcoal border border-charcoal-border flex items-center justify-center">
+                                        <template x-if="selectedPeserta.karya.coverDepan">
+                                            <a :href="selectedPeserta.karya.coverDepan" target="_blank" class="w-full h-full block">
+                                                <img :src="selectedPeserta.karya.coverDepan" class="w-full h-full object-cover">
+                                            </a>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-[10px] font-extrabold uppercase text-silver block mb-1.5">Cover Belakang</span>
+                                    <div class="aspect-[2/3] rounded-xl overflow-hidden bg-charcoal border border-charcoal-border flex items-center justify-center">
+                                        <template x-if="selectedPeserta.karya.coverBelakang">
+                                            <a :href="selectedPeserta.karya.coverBelakang" target="_blank" class="w-full h-full block">
+                                                <img :src="selectedPeserta.karya.coverBelakang" class="w-full h-full object-cover">
+                                            </a>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Kontrol Penilaian Juri / Admin -->
+                            <div class="md:col-span-2 flex flex-col justify-between bg-slate-100 dark:bg-charcoal-deep p-4 rounded-2xl border border-slate-300 dark:border-charcoal-border space-y-3">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                                    <div class="p-2.5 rounded-xl premium-card">
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Genre</span>
+                                        <span class="font-extrabold text-gold-dark dark:text-gold-light" x-text="selectedPeserta.karya.genre || 'Umum'"></span>
+                                    </div>
+                                    <div class="p-2.5 rounded-xl premium-card">
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Jumlah Kata</span>
+                                        <span class="font-extrabold font-mono-code" x-text="(selectedPeserta.karya.jumlahKata || 0).toLocaleString('id-ID') + ' Kata'"></span>
+                                    </div>
+                                    <div class="p-2.5 rounded-xl premium-card col-span-2 sm:col-span-1">
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Waktu Edit</span>
+                                        <span class="font-bold text-[11px]" x-text="formatDateTime(selectedPeserta.karya.waktuUpdate)"></span>
+                                    </div>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-gold/10 border border-gold/30 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-extrabold uppercase text-gold-dark dark:text-gold-light">
+                                            <i class="fa-solid fa-gavel mr-1"></i>Status Karya & Catatan Juri
+                                        </span>
+                                        <template x-if="selectedPeserta.karya.linkGdocs && selectedPeserta.karya.linkGdocs !== '-'">
+                                            <a :href="selectedPeserta.karya.linkGdocs" target="_blank" class="text-[10px] font-bold underline text-gold-dark dark:text-gold-light">
+                                                <i class="fa-solid fa-up-right-from-square mr-1"></i>Buka Dokumen
+                                            </a>
+                                        </template>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                        <div>
+                                            <label class="text-[10px] font-bold uppercase block mb-1">Status Karya</label>
+                                            <select x-model="adminEditStatus" class="w-full premium-input rounded-xl px-3 py-2 text-xs font-extrabold">
+                                                <option value="Menunggu Kurasi">⏳ Menunggu Kurasi</option>
+                                                <option value="Sedang Dinilai">🔍 Sedang Dinilai</option>
+                                                <option value="Perlu Revisi">⚠️ Perlu Revisi</option>
+                                                <option value="Lolos Finalis">✅ Lolos Finalis</option>
+                                                <option value="Juara Terbaik">🏆 Juara Terbaik</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="text-[10px] font-bold uppercase block mb-1">Catatan Redaksi / Juri</label>
+                                            <input type="text" x-model="adminEditCatatan" placeholder="Catatan untuk peserta..." class="w-full premium-input rounded-xl px-3 py-2 text-xs font-semibold">
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button @click="simpanPenilaianAdmin()" class="px-4 py-2 rounded-xl btn-gold text-xs flex items-center space-x-1.5">
+                                            <i class="fa-solid fa-floppy-disk"></i>
+                                            <span>Simpan Status</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-slate-100 dark:bg-charcoal-deep border border-slate-300 dark:border-charcoal-border">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-gold-dark dark:text-gold-light mb-2">Sinopsis</h4>
+                            <p class="text-xs sm:text-sm leading-relaxed whitespace-pre-line" x-text="selectedPeserta.karya.sinopsis"></p>
+                        </div>
+
+                        <div class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-[#101217] border border-slate-300 dark:border-charcoal-border">
+                            <div class="flex items-center justify-between border-b border-slate-200 dark:border-charcoal-border pb-3 mb-4">
+                                <h4 class="text-xs font-extrabold uppercase tracking-wider text-gold-dark dark:text-gold-light">Isi Tulisan Novela</h4>
+                                <span class="text-[11px] font-mono-code text-slate-400" x-text="(selectedPeserta.karya.jumlahKata || 0) + ' Kata'"></span>
+                            </div>
+                            <div class="font-serif-novel text-xs sm:text-sm leading-loose whitespace-pre-line max-h-[420px] overflow-y-auto pr-2" x-text="selectedPeserta.karya.isiNovela"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- HALAMAN DEPAN: MASUK AKUN & DAFTAR LOMBA (2 LANGKAH PEMBAYARAN)     -->
+    <!-- =================================================================== -->
+    <div x-show="!isLoggedIn" x-transition class="min-h-screen bg-charcoal-deep flex items-center justify-center p-4 no-print py-8">
+        <div class="w-full max-w-lg bg-charcoal-card border border-charcoal-border rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-44 h-44 bg-gold/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-44 h-44 bg-silver/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <!-- Tombol Instal PWA & Pengaturan di Kanan Atas Halaman Masuk -->
+            <div class="absolute top-4 right-4 flex items-center space-x-1.5">
+                <button x-show="canInstallPWA && !isAppInstalled" @click="installPWA()" style="display: none;" class="h-8 px-2.5 rounded-xl btn-gold text-[10px] font-extrabold uppercase flex items-center space-x-1 shadow">
+                    <i class="fa-solid fa-download text-[10px]"></i><span>Instal</span>
+                </button>
+                <button @click="openModalConfig()" class="w-8 h-8 rounded-xl bg-charcoal border border-charcoal-border text-silver hover:text-gold flex items-center justify-center transition" title="Server">
+                    <i class="fa-solid fa-gear text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Logo & Judul -->
+            <div class="flex flex-col items-center text-center mb-5">
+                <div class="w-16 h-16 rounded-2xl bg-charcoal border border-gold/40 flex items-center justify-center p-2.5 mb-3 shadow-inner">
+                    <img src="logo.png" onerror="this.src='rev.png'; this.onerror=null;" alt="Logo MTM" class="w-full h-full object-contain">
+                </div>
+                <div class="flex items-center space-x-1.5">
+                    <h1 class="text-xl font-black tracking-tight text-white">LOMBA NOVELA</h1>
+                    <span class="px-2 py-0.5 text-[9px] font-extrabold rounded bg-gold/20 text-gold-light border border-gold/40 uppercase">2026</span>
+                </div>
+                <p class="text-[11px] font-semibold text-silver mt-1 uppercase tracking-wider">PT Media Tulisan Manusia</p>
+            </div>
+
+            <!-- Pilihan Tab: Masuk / Daftar -->
+            <div class="grid grid-cols-2 gap-1.5 p-1.5 rounded-2xl bg-charcoal-deep border border-charcoal-border mb-5">
+                <button type="button" @click="authMode = 'login'; authError = ''" 
+                        class="py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition"
+                        :class="authMode === 'login' ? 'btn-gold' : 'text-silver hover:text-white'">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i>Masuk
+                </button>
+                <button type="button" @click="authMode = 'register'; regStep = 1; authError = ''" 
+                        class="py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition"
+                        :class="authMode === 'register' ? 'btn-gold' : 'text-silver hover:text-white'">
+                    <i class="fa-solid fa-user-plus mr-1"></i>Daftar
+                </button>
+            </div>
+
+            <div x-show="authError" x-transition class="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs font-bold text-center" x-text="authError"></div>
+
+            <!-- =========================================================== -->
+            <!-- TAB 1: MASUK AKUN                                           -->
+            <!-- =========================================================== -->
+            <form x-show="authMode === 'login'" @submit.prevent="handleLogin()" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-silver uppercase tracking-wider mb-1.5">Alamat Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                            <i class="fa-solid fa-envelope text-xs"></i>
+                        </span>
+                        <input type="email" x-model="loginForm.email" required placeholder="email@anda.com" class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:outline-none focus:border-gold transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-silver uppercase tracking-wider mb-1.5">Sandi Akun</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                            <i class="fa-solid fa-lock text-xs"></i>
+                        </span>
+                        <input type="password" x-model="loginForm.password" required placeholder="••••••••" class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:outline-none focus:border-gold transition">
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1.5">* Jika akun dibuatkan oleh Admin di Sheet, gunakan <b>Sandi</b> atau <b>Nomor WhatsApp</b> Anda.</p>
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-xl btn-gold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Masuk</span>
+                </button>
+            </form>
+
+            <!-- =========================================================== -->
+            <!-- TAB 2: DAFTAR LOMBA & BUAT AKUN (INTEGRASI FORM LAMA)       -->
+            <!-- =========================================================== -->
+            <form x-show="authMode === 'register'" @submit.prevent="handleRegister()" class="space-y-4">
+                
+                <!-- LANGKAH 1: ISI BIODATA, SANDI & PILIH METODE BAYAR -->
+                <div x-show="regStep === 1" class="space-y-3.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-silver uppercase mb-1">Nama Lengkap (KTP) *</label>
+                            <input type="text" x-model="regForm.namaLengkap" required placeholder="Nama lengkap Anda" class="w-full px-3 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:border-gold focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-silver uppercase mb-1">Nama Pena (Opsional)</label>
+                            <input type="text" x-model="regForm.namaPena" placeholder="Nama di sampul buku" class="w-full px-3 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:border-gold focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-silver uppercase mb-1">Alamat Email *</label>
+                            <input type="email" x-model="regForm.email" required placeholder="email@anda.com" class="w-full px-3 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:border-gold focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-silver uppercase mb-1">Buat Sandi Akun *</label>
+                            <input type="password" x-model="regForm.password" required placeholder="Untuk masuk akun" class="w-full px-3 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:border-gold focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-silver uppercase mb-1">Nomor WhatsApp *</label>
+                            <input type="tel" x-model="regForm.wa" required placeholder="08xxxxxxxxxx" class="w-full px-3 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs font-mono-code focus:border-gold focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-silver uppercase mb-1">Asal Kota / Instansi *</label>
+                            <input type="text" x-model="regForm.asalKota" required placeholder="Contoh: Malang" class="w-full px-3 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:border-gold focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-silver uppercase mb-1">Rencana Judul Novela *</label>
+                        <input type="text" x-model="regForm.rencanaJudul" required placeholder="Bisa diubah saat pengumpulan karya" class="w-full px-3 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:border-gold focus:outline-none">
+                    </div>
+
+                    <!-- Pilihan Metode Pembayaran -->
+                    <div class="p-3.5 rounded-2xl bg-charcoal-deep border border-gold/40 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold uppercase text-gold-light">Metode Pembayaran *</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-gold/20 text-gold-light font-extrabold text-[10px]">Biaya: Rp 50.000</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="p-2.5 rounded-xl border cursor-pointer text-center transition"
+                                   :class="regForm.metodeBayar === 'QRIS' ? 'border-gold bg-gold/15 text-white' : 'border-charcoal-border bg-charcoal text-silver'">
+                                <input type="radio" value="QRIS" x-model="regForm.metodeBayar" class="hidden">
+                                <span class="font-extrabold text-xs block">QRIS</span>
+                                <span class="text-[9px] text-slate-400">E-Wallet / Bank</span>
+                            </label>
+                            <label class="p-2.5 rounded-xl border cursor-pointer text-center transition"
+                                   :class="regForm.metodeBayar === 'OCBC' ? 'border-gold bg-gold/15 text-white' : 'border-charcoal-border bg-charcoal text-silver'">
+                                <input type="radio" value="OCBC" x-model="regForm.metodeBayar" class="hidden">
+                                <span class="font-extrabold text-xs block">OCBC</span>
+                                <span class="text-[9px] text-slate-400">PT MTM</span>
+                            </label>
+                            <label class="p-2.5 rounded-xl border cursor-pointer text-center transition"
+                                   :class="regForm.metodeBayar === 'BRI' ? 'border-gold bg-gold/15 text-white' : 'border-charcoal-border bg-charcoal text-silver'">
+                                <input type="radio" value="BRI" x-model="regForm.metodeBayar" class="hidden">
+                                <span class="font-extrabold text-xs block">BRI</span>
+                                <span class="text-[9px] text-slate-400">Transfer</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <label class="flex items-start gap-2.5 p-3 rounded-xl bg-charcoal-deep border border-charcoal-border cursor-pointer">
+                        <input type="checkbox" x-model="regForm.setujuSnk" class="mt-0.5 w-4 h-4 rounded text-gold">
+                        <span class="text-[11px] text-silver leading-relaxed">Saya bersedia mengikuti Technical Meeting (30 Oktober 2026) dan mematuhi Syarat & Ketentuan lomba.</span>
+                    </label>
+
+                    <button type="button" @click="keLangkahBayar()" class="w-full py-3 rounded-xl btn-gold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-2">
+                        <span>Lanjut Pembayaran</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- LANGKAH 2: NOMOR REKENING / QRIS & UNGGAH BUKTI TRANSFER -->
+                <div x-show="regStep === 2" class="space-y-4">
+                    <div class="text-center p-4 rounded-2xl bg-charcoal-deep border border-gold/40">
+                        <p class="text-[10px] text-silver font-bold uppercase tracking-widest">Tagihan Pendaftaran Lomba</p>
+                        <h3 class="text-2xl font-black text-gold-light font-mono-code mt-0.5">Rp 50.000</h3>
+
+                        <!-- Tampilan QRIS -->
+                        <div x-show="regForm.metodeBayar === 'QRIS'" class="mt-3 space-y-2">
+                            <p class="text-[11px] text-silver">Pindai kode QRIS PT Media Tulisan Manusia:</p>
+                            <div class="inline-block p-2 bg-white rounded-xl">
+                                <img src="payqris.png" alt="QRIS" class="w-44 h-44 object-contain mx-auto" onerror="this.outerHTML='<div class=\'w-44 h-44 flex items-center justify-center text-xs text-black font-bold p-4\'>QRIS PT MEDIA TULISAN MANUSIA</div>'">
+                            </div>
+                        </div>
+
+                        <!-- Tampilan OCBC -->
+                        <div x-show="regForm.metodeBayar === 'OCBC'" class="mt-3 space-y-2">
+                            <p class="text-xs font-extrabold text-white">BANK OCBC NISP</p>
+                            <p class="text-[11px] text-silver">a.n. <b>PT MEDIA TULISAN MANUSIA</b></p>
+                            <div class="flex items-center justify-between bg-charcoal p-2.5 rounded-xl border border-charcoal-border max-w-xs mx-auto">
+                                <span class="font-mono-code font-black text-sm text-gold-light">693800151450</span>
+                                <button type="button" @click="salinTeks('693800151450')" class="px-2.5 py-1 rounded-lg bg-gold/20 text-gold-light text-[10px] font-bold">Salin</button>
+                            </div>
+                        </div>
+
+                        <!-- Tampilan BRI -->
+                        <div x-show="regForm.metodeBayar === 'BRI'" class="mt-3 space-y-2">
+                            <p class="text-xs font-extrabold text-white">BANK BRI</p>
+                            <p class="text-[11px] text-silver">a.n. <b>ACH. SUFYAN WAHYUDI</b></p>
+                            <div class="flex items-center justify-between bg-charcoal p-2.5 rounded-xl border border-charcoal-border max-w-xs mx-auto">
+                                <span class="font-mono-code font-black text-sm text-gold-light">123001006601501</span>
+                                <button type="button" @click="salinTeks('123001006601501')" class="px-2.5 py-1 rounded-lg bg-gold/20 text-gold-light text-[10px] font-bold">Salin</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unggah Foto Bukti Transfer -->
+                    <div class="p-4 rounded-2xl bg-charcoal-deep border border-charcoal-border space-y-2">
+                        <label class="block text-[11px] font-extrabold text-gold-light uppercase">Unggah Bukti Transfer *</label>
+                        <input type="file" accept="image/*" @change="handleBuktiRegister($event)" class="block w-full text-[11px] text-silver file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-[11px] file:font-extrabold file:bg-gold file:text-black cursor-pointer">
+                        <template x-if="regForm.buktiPreview">
+                            <div class="pt-2">
+                                <img :src="regForm.buktiPreview" class="h-28 rounded-xl border border-gold/40 object-contain mx-auto">
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="button" @click="regStep = 1" class="w-1/3 py-3 rounded-xl btn-silver text-xs font-bold">Kembali</button>
+                        <button type="submit" class="w-2/3 py-3 rounded-xl btn-gold text-xs uppercase tracking-wider flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Kirim & Daftar</span>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-charcoal-border flex items-center justify-between text-[10px] text-slate-500">
+                <span>PT Media Tulisan Manusia</span>
+                <span class="font-mono-code text-gold-light">● Database Sheets Aktif</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- HALAMAN UTAMA SETELAH MASUK (PESERTA & ADMIN)                       -->
+    <!-- =================================================================== -->
+    <div x-show="isLoggedIn" class="w-full">
+        
+        <!-- HEADER STICKY -->
+        <header class="sticky top-0 z-40 bg-white/95 dark:bg-charcoal/95 backdrop-blur-md border-b border-slate-300 dark:border-charcoal-border no-print">
+            <div class="max-w-6xl mx-auto px-3 sm:px-6">
+                
+                <!-- Baris 1: Logo & Kontrol Kanan -->
+                <div class="flex items-center justify-between py-2.5 gap-2">
+                    <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-charcoal-card border border-slate-300 dark:border-gold/40 flex items-center justify-center overflow-hidden shrink-0 p-1 shadow-inner">
+                            <img src="logo.png" onerror="this.src='rev.png'; this.onerror=null;" alt="Logo" class="w-full h-full object-contain">
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center space-x-1.5">
+                                <span class="font-black text-sm sm:text-base tracking-tight text-slate-900 dark:text-white leading-none">NOVELA</span>
+                                <span class="px-1.5 py-0.5 text-[9px] font-extrabold rounded uppercase leading-none"
+                                      :class="isAdmin() ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'bg-gold/20 text-gold-dark dark:text-gold-light border border-gold/40'"
+                                      x-text="isAdmin() ? 'ADMIN' : 'PESERTA'"></span>
+                            </div>
+                            <p class="text-[9.5px] sm:text-[11px] font-bold text-slate-500 dark:text-silver uppercase tracking-wider whitespace-nowrap truncate mt-0.5">PT MEDIA TULISAN MANUSIA</p>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Kanan (PWA Instal otomatis hilang setelah diunduh) -->
+                    <div class="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
+                        <button x-show="canInstallPWA && !isAppInstalled" 
+                                @click="installPWA()" 
+                                x-transition
+                                class="h-8 px-2.5 rounded-lg btn-gold text-[10px] font-extrabold uppercase tracking-wider flex items-center space-x-1 shadow"
+                                style="display: none;"
+                                title="Instal Aplikasi">
+                            <i class="fa-solid fa-download text-[10px]"></i>
+                            <span>Instal</span>
+                        </button>
+
+                        <button @click="toggleTheme()" class="w-8 h-8 rounded-lg btn-silver flex items-center justify-center hover:border-gold transition" title="Tema">
+                            <i class="fa-solid text-xs" :class="isDark ? 'fa-sun text-gold-light' : 'fa-moon text-white'"></i>
+                        </button>
+
+                        <button @click="openModalConfig()" class="w-8 h-8 rounded-lg btn-silver flex items-center justify-center hover:border-gold transition" title="Database">
+                            <i class="fa-solid fa-gear text-xs"></i>
+                        </button>
+
+                        <button @click="syncData(true)" class="w-8 h-8 rounded-lg btn-silver flex items-center justify-center hover:border-gold transition" title="Sinkron">
+                            <i class="fa-solid fa-arrows-rotate text-xs text-gold-light" :class="isSyncing ? 'animate-spin' : ''"></i>
+                        </button>
+
+                        <button @click="logout()" class="w-8 h-8 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center hover:bg-rose-600 hover:text-white transition" title="Keluar">
+                            <i class="fa-solid fa-power-off text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Baris 2: Status Bar -->
+                <div class="flex items-center justify-between py-1.5 px-3 rounded-lg bg-slate-100 dark:bg-charcoal-deep border border-slate-300/80 dark:border-charcoal-border text-[10px] font-mono-code mb-2">
+                    <div class="flex items-center space-x-1.5 text-slate-500 dark:text-silver">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="font-sans font-bold text-emerald-600 dark:text-emerald-400">Aktif</span>
+                        <span>•</span>
+                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-gold/15 text-gold-dark dark:text-gold-light border border-gold/30 font-sans font-bold" x-text="currentUser ? currentUser.nama : ''"></span>
+                    </div>
+                    <div class="font-bold text-slate-700 dark:text-slate-300" x-text="realtimeClock"></div>
+                </div>
+
+                <!-- Baris 3: Tombol Navigasi (Singkat 1-2 Kata Bahasa Indonesia) -->
+                <div class="flex items-center space-x-1.5 overflow-x-auto hide-scrollbar pb-2.5 pt-0.5">
+                    <!-- Navigasi Peserta -->
+                    <template x-if="!isAdmin()">
+                        <div class="flex items-center space-x-1.5">
+                            <button @click="activeTab = 'beranda'" 
+                                    class="px-3.5 py-2 rounded-xl font-bold text-xs flex items-center space-x-1.5 shrink-0 transition"
+                                    :class="activeTab === 'beranda' ? 'btn-gold' : 'btn-silver opacity-85 hover:opacity-100'">
+                                <i class="fa-solid fa-house text-[11px]"></i>
+                                <span>Beranda</span>
+                            </button>
+
+                            <button @click="bukaTabKarya()" 
+                                    class="px-3.5 py-2 rounded-xl font-bold text-xs flex items-center space-x-1.5 shrink-0 transition"
+                                    :class="activeTab === 'karya' ? 'btn-gold' : 'btn-silver opacity-85 hover:opacity-100'">
+                                <i class="fa-solid text-[11px]" :class="currentUser?.isVerified ? 'fa-feather-pointed' : 'fa-lock text-rose-400'"></i>
+                                <span x-text="myKarya ? 'Edit Karya' : 'Kumpul Karya'"></span>
+                            </button>
+
+                            <button @click="activeTab = 'riwayat'" 
+                                    class="px-3.5 py-2 rounded-xl font-bold text-xs flex items-center space-x-1.5 shrink-0 transition"
+                                    :class="activeTab === 'riwayat' ? 'btn-gold' : 'btn-silver opacity-85 hover:opacity-100'">
+                                <i class="fa-solid fa-clock-rotate-left text-[11px]"></i>
+                                <span>Riwayat</span>
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- Navigasi Admin (ptmediatulisanmanusia@gmail.com) -->
+                    <template x-if="isAdmin()">
+                        <div class="flex items-center space-x-1.5">
+                            <button @click="activeTab = 'admin_peserta'" 
+                                    class="px-3.5 py-2 rounded-xl font-bold text-xs flex items-center space-x-1.5 shrink-0 transition"
+                                    :class="activeTab === 'admin_peserta' ? 'btn-gold' : 'btn-silver opacity-85 hover:opacity-100'">
+                                <i class="fa-solid fa-users text-[11px]"></i>
+                                <span>Peserta</span>
+                            </button>
+
+                            <button @click="activeTab = 'admin_karya'" 
+                                    class="px-3.5 py-2 rounded-xl font-bold text-xs flex items-center space-x-1.5 shrink-0 transition"
+                                    :class="activeTab === 'admin_karya' ? 'btn-gold' : 'btn-silver opacity-85 hover:opacity-100'">
+                                <i class="fa-solid fa-book-open text-[11px]"></i>
+                                <span>Karya (<span x-text="hitungKaryaMasuk()"></span>)</span>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+
+            </div>
+        </header>
+
+        <!-- =============================================================== -->
+        <!-- KONTEN UTAMA                                                    -->
+        <!-- =============================================================== -->
+        <main class="max-w-6xl mx-auto px-3 sm:px-6 pt-4 pb-12 w-full">
+
+            <!-- =========================================================== -->
+            <!-- A. HALAMAN AKUN PRIBADI PESERTA                             -->
+            <!-- =========================================================== -->
+            <div x-show="!isAdmin()">
+
+                <!-- 1. BERANDA PESERTA -->
+                <div x-show="activeTab === 'beranda'" x-transition class="space-y-4">
+                    
+                    <div class="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-charcoal via-[#1d2029] to-[#252117] text-white shadow-2xl border border-gold/30 relative overflow-hidden">
+                        <div class="absolute -right-12 -top-12 w-44 h-44 bg-gold/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold-light text-[10px] font-mono-code font-bold" x-text="'ID: ' + (currentUser?.id || '-')"></span>
+
+                            <template x-if="currentUser?.isVerified">
+                                <span class="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-circle-check"></i><span>Akun Terverifikasi</span>
+                                </span>
+                            </template>
+                            <template x-if="!currentUser?.isVerified">
+                                <span class="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-extrabold uppercase flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-clock"></i><span>Menunggu Verifikasi</span>
+                                </span>
+                            </template>
+                        </div>
+
+                        <h2 class="text-xl sm:text-2xl font-black tracking-tight">
+                            Halo, <span class="text-gold-light underline decoration-gold/60 underline-offset-4" x-text="currentUser?.nama"></span>!
+                        </h2>
+                        <p class="text-xs text-silver mt-1 font-semibold uppercase tracking-wider">
+                            Nama Pena: <span class="text-white" x-text="currentUser?.namaPena || '-'"></span> • <span x-text="currentUser?.kota || '-'"></span>
+                        </p>
+
+                        <!-- Tombol Utama Kumpul / Edit Novela -->
+                        <div class="mt-5 p-4 rounded-2xl bg-black/45 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fa-solid text-sm" :class="currentUser?.isVerified ? 'fa-unlock-keyhole text-emerald-400' : 'fa-lock text-rose-400'"></i>
+                                    <span class="font-extrabold text-xs sm:text-sm text-white" x-text="currentUser?.isVerified ? 'Pengumpulan Karya Terbuka' : 'Pengumpulan Karya Terkunci'"></span>
+                                </div>
+                                <p class="text-[11px] text-silver" x-text="currentUser?.isVerified ? 'Unggah Cover Depan, Cover Belakang, Sinopsis, dan Tulisan Novela Anda.' : 'Menunggu Admin mencentang verifikasi pendaftaran Anda di Google Sheet.'"></p>
+                            </div>
+
+                            <button @click="bukaTabKarya()" 
+                                    class="w-full sm:w-auto px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center space-x-2 shrink-0 transition"
+                                    :class="currentUser?.isVerified ? 'btn-gold' : 'btn-silver opacity-75'">
+                                <i class="fa-solid" :class="currentUser?.isVerified ? (myKarya ? 'fa-pen-to-square' : 'fa-cloud-arrow-up') : 'fa-lock'"></i>
+                                <span x-text="myKarya ? 'Edit Karya' : 'Kumpul Karya'"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3 Kartu Status -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+                        <div class="premium-card rounded-2xl p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-gold-dark dark:text-gold-light">PENDAFTARAN</span>
+                                    <i class="fa-solid fa-user-check text-gold"></i>
+                                </div>
+                                <p class="text-sm font-black" :class="currentUser?.isVerified ? 'text-emerald-500' : 'text-amber-500'" x-text="currentUser?.isVerified ? 'RESMI AKTIF' : 'MENUNGGU CENTANG'"></p>
+                                <p class="text-[11px] text-slate-400 mt-1">Metode: <b class="text-slate-700 dark:text-slate-200" x-text="currentUser?.metodeBayar || '-'"></b></p>
+                            </div>
+                            <div class="mt-3 pt-2.5 border-t border-slate-200 dark:border-charcoal-border flex items-center justify-between">
+                                <template x-if="currentUser?.linkBukti && currentUser?.linkBukti !== '-'">
+                                    <a :href="currentUser.linkBukti" target="_blank" class="text-[11px] font-bold text-gold-dark dark:text-gold-light hover:underline">
+                                        <i class="fa-solid fa-image mr-1"></i>Lihat Bukti Bayar
+                                    </a>
+                                </template>
+                                <button @click="syncData(true)" class="text-[11px] font-bold text-silver hover:text-white">
+                                    <i class="fa-solid fa-rotate mr-1"></i>Segarkan
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="premium-card rounded-2xl p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-gold-dark dark:text-gold-light">KARYA NOVELA</span>
+                                    <i class="fa-solid fa-book text-gold"></i>
+                                </div>
+                                <template x-if="myKarya">
+                                    <div>
+                                        <p class="text-sm font-black text-slate-900 dark:text-white truncate" x-text="myKarya.judul"></p>
+                                        <p class="text-[11px] text-emerald-500 font-bold mt-0.5" x-text="(myKarya.jumlahKata || 0).toLocaleString('id-ID') + ' Kata'"></p>
+                                    </div>
+                                </template>
+                                <template x-if="!myKarya">
+                                    <div>
+                                        <p class="text-sm font-black text-slate-400" x-text="currentUser?.rencanaJudul || 'Belum Dikumpulkan'"></p>
+                                        <p class="text-[11px] text-slate-400 mt-0.5">1 Akun = 1 Karya (Bisa Diedit)</p>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="mt-3 pt-2.5 border-t border-slate-200 dark:border-charcoal-border flex items-center justify-between">
+                                <span class="text-[10px] text-slate-400" x-text="myKarya ? ('Edit: ' + formatDateTime(myKarya.waktuUpdate)) : 'Belum dikirim'"></span>
+                                <template x-if="myKarya">
+                                    <button @click="cetakBuktiKarya()" class="text-[11px] font-extrabold text-gold-dark dark:text-gold-light hover:underline">
+                                        <i class="fa-solid fa-print mr-1"></i>Bukti PDF
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="premium-card rounded-2xl p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-gold-dark dark:text-gold-light">STATUS KARYA</span>
+                                    <i class="fa-solid fa-award text-gold"></i>
+                                </div>
+                                <p class="text-sm font-black text-gold-dark dark:text-gold-light uppercase" x-text="myKarya ? (myKarya.statusKarya || 'Menunggu Kurasi') : 'BELUM ADA'"></p>
+                                <p class="text-[11px] text-slate-500 dark:text-silver mt-1 line-clamp-2" x-text="myKarya ? (myKarya.catatanJuri || 'Naskah telah diterima sistem.') : 'Kumpulkan karya untuk melihat status.'"></p>
+                            </div>
+                            <div class="mt-3 pt-2.5 border-t border-slate-200 dark:border-charcoal-border flex justify-end">
+                                <button @click="activeTab = 'riwayat'" class="text-[11px] font-bold text-gold-dark dark:text-gold-light hover:underline">Buka Riwayat →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 2. FORM KUMPUL / EDIT KARYA NOVELA -->
+                <div x-show="activeTab === 'karya'" x-transition class="space-y-4">
+                    
+                    <template x-if="!currentUser?.isVerified">
+                        <div class="premium-card rounded-3xl p-8 text-center space-y-4 border-2 border-amber-500/40">
+                            <div class="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto text-2xl">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <h3 class="text-lg font-black uppercase">Pengumpulan Karya Belum Terbuka</h3>
+                            <p class="text-xs text-slate-500 dark:text-silver max-w-md mx-auto leading-relaxed">
+                                Akun Anda (<b class="text-gold-light font-mono-code" x-text="currentUser?.id"></b>) sedang menunggu Admin mencentang kolom <b>Verifikasi_Bayar</b> di Google Sheets.
+                            </p>
+                            <div class="flex justify-center gap-2 pt-2">
+                                <button @click="activeTab = 'beranda'" class="px-4 py-2.5 rounded-xl btn-silver text-xs font-bold">Beranda</button>
+                                <button @click="syncData(true)" class="px-5 py-2.5 rounded-xl btn-gold text-xs flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-arrows-rotate"></i><span>Cek Verifikasi</span>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="currentUser?.isVerified">
+                        <div class="premium-card rounded-3xl p-4 sm:p-6 space-y-5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-charcoal-border pb-4">
+                                <div class="flex items-center space-x-3">
+                                    <span class="w-10 h-10 rounded-xl btn-gold flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-feather-pointed text-sm"></i>
+                                    </span>
+                                    <div>
+                                        <h2 class="text-base sm:text-lg font-black uppercase tracking-tight" x-text="myKarya ? 'Edit Karya Novela' : 'Pengumpulan Karya Novela'"></h2>
+                                        <p class="text-[11px] text-slate-400">Khusus 1 karya per peserta dan dapat diedit kembali kapan saja.</p>
+                                    </div>
+                                </div>
+                                <template x-if="myKarya">
+                                    <button type="button" @click="cetakBuktiKarya()" class="px-4 py-2 rounded-xl btn-silver text-xs font-bold flex items-center space-x-1.5">
+                                        <i class="fa-solid fa-print text-gold-light"></i><span>Bukti PDF</span>
+                                    </button>
+                                </template>
+                            </div>
+
+                            <form @submit.prevent="submitKaryaNovela()" class="space-y-5">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-silver mb-1.5">Judul Novela *</label>
+                                        <input type="text" x-model="karyaForm.judul" required placeholder="Judul karya novela Anda..." class="w-full premium-input rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-extrabold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-silver mb-1.5">Genre *</label>
+                                        <select x-model="karyaForm.genre" required class="w-full premium-input rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold">
+                                            <option value="Romansa / Drama">Romansa / Drama</option>
+                                            <option value="Keluarga / Kehidupan">Keluarga / Kehidupan</option>
+                                            <option value="Fantasi / Fiksi Ilmiah">Fantasi / Fiksi Ilmiah</option>
+                                            <option value="Misteri / Detektif">Misteri / Detektif</option>
+                                            <option value="Horor">Horor</option>
+                                            <option value="Sejarah / Budaya">Sejarah / Budaya</option>
+                                            <option value="Religi / Inspiratif">Religi / Inspiratif</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Cover Depan & Belakang -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="p-4 rounded-2xl bg-slate-100 dark:bg-charcoal-deep border border-slate-300 dark:border-charcoal-border flex items-center space-x-4">
+                                        <div class="w-20 aspect-[2/3] rounded-xl bg-charcoal border border-gold/40 overflow-hidden shrink-0 flex items-center justify-center">
+                                            <template x-if="karyaForm.previewDepan || karyaForm.existingCoverDepan">
+                                                <img :src="karyaForm.previewDepan || karyaForm.existingCoverDepan" class="w-full h-full object-cover">
+                                            </template>
+                                            <template x-if="!karyaForm.previewDepan && !karyaForm.existingCoverDepan">
+                                                <i class="fa-solid fa-image text-xl text-gold/50"></i>
+                                            </template>
+                                        </div>
+                                        <div class="flex-1 space-y-1.5">
+                                            <label class="block text-xs font-extrabold uppercase text-gold-dark dark:text-gold-light">Cover Depan *</label>
+                                            <input type="file" accept="image/*" @change="handleImageUpload($event, 'depan')" class="block w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-extrabold file:bg-gold file:text-black cursor-pointer">
+                                        </div>
+                                    </div>
+
+                                    <div class="p-4 rounded-2xl bg-slate-100 dark:bg-charcoal-deep border border-slate-300 dark:border-charcoal-border flex items-center space-x-4">
+                                        <div class="w-20 aspect-[2/3] rounded-xl bg-charcoal border border-charcoal-border overflow-hidden shrink-0 flex items-center justify-center">
+                                            <template x-if="karyaForm.previewBelakang || karyaForm.existingCoverBelakang">
+                                                <img :src="karyaForm.previewBelakang || karyaForm.existingCoverBelakang" class="w-full h-full object-cover">
+                                            </template>
+                                            <template x-if="!karyaForm.previewBelakang && !karyaForm.existingCoverBelakang">
+                                                <i class="fa-solid fa-image text-xl text-silver/50"></i>
+                                            </template>
+                                        </div>
+                                        <div class="flex-1 space-y-1.5">
+                                            <label class="block text-xs font-extrabold uppercase text-slate-700 dark:text-silver-light">Cover Belakang *</label>
+                                            <input type="file" accept="image/*" @change="handleImageUpload($event, 'belakang')" class="block w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-extrabold file:bg-slate-700 file:text-white cursor-pointer">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sinopsis -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-silver">Sinopsis Lengkap *</label>
+                                        <span class="text-[10px] font-mono-code text-gold-dark dark:text-gold-light" x-text="hitungKata(karyaForm.sinopsis) + ' Kata'"></span>
+                                    </div>
+                                    <textarea x-model="karyaForm.sinopsis" rows="4" required placeholder="Tuliskan sinopsis novela dari awal hingga akhir..." class="w-full premium-input rounded-2xl p-3.5 text-xs sm:text-sm leading-relaxed"></textarea>
+                                </div>
+
+                                <!-- Isi Tulisan Novela -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-silver">Isi Tulisan / Naskah Novela *</label>
+                                        <span class="px-2.5 py-0.5 rounded-full bg-gold/15 border border-gold/40 text-gold-dark dark:text-gold-light text-[10px] font-mono-code font-extrabold" x-text="hitungKata(karyaForm.isiNovela).toLocaleString('id-ID') + ' Kata'"></span>
+                                    </div>
+                                    <textarea x-model="karyaForm.isiNovela" rows="15" required placeholder="Ketik atau tempelkan seluruh isi cerita novela Anda di sini..." class="w-full premium-input rounded-2xl p-4 font-serif-novel text-xs sm:text-sm leading-loose"></textarea>
+                                </div>
+
+                                <!-- Tautan Cadangan Google Drive -->
+                                <div>
+                                    <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-silver mb-1">Tautan Google Drive / Docs (Opsional)</label>
+                                    <input type="url" x-model="karyaForm.linkGdocs" placeholder="https://drive.google.com/..." class="w-full premium-input rounded-xl px-3.5 py-2.5 text-xs font-mono-code">
+                                </div>
+
+                                <div class="flex justify-end pt-2 border-t border-slate-200 dark:border-charcoal-border">
+                                    <button type="submit" class="w-full sm:w-auto px-6 py-3.5 rounded-xl btn-gold text-xs uppercase tracking-wider flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-floppy-disk"></i>
+                                        <span x-text="myKarya ? 'Simpan Edit' : 'Kirim Karya'"></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </template>
+
+                </div>
+
+                <!-- 3. RIWAYAT PENGUMPULAN & REVISI -->
+                <div x-show="activeTab === 'riwayat'" x-transition class="space-y-4">
+                    <div class="premium-card rounded-3xl p-5 sm:p-6">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-charcoal-border pb-4 mb-5">
+                            <h2 class="text-base sm:text-lg font-black uppercase tracking-tight">Riwayat & Status Karya</h2>
+                            <template x-if="myKarya">
+                                <button @click="activeTab = 'karya'" class="px-3.5 py-2 rounded-xl btn-gold text-xs flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-pen-to-square"></i><span>Edit Karya</span>
+                                </button>
+                            </template>
+                        </div>
+
+                        <template x-if="!myKarya">
+                            <div class="p-8 text-center rounded-2xl border border-dashed border-slate-300 dark:border-charcoal-border">
+                                <p class="text-sm font-bold">Belum Ada Riwayat Karya</p>
+                            </div>
+                        </template>
+
+                        <template x-if="myKarya">
+                            <div class="space-y-5">
+                                <div class="p-4 rounded-2xl bg-slate-100 dark:bg-charcoal-deep border border-gold/40 flex flex-col sm:flex-row gap-4 items-center">
+                                    <div class="flex space-x-2 shrink-0">
+                                        <img :src="myKarya.coverDepan || 'logo.png'" class="w-20 aspect-[2/3] rounded-xl object-cover bg-charcoal border border-gold/40">
+                                        <img :src="myKarya.coverBelakang || 'logo.png'" class="w-20 aspect-[2/3] rounded-xl object-cover bg-charcoal border border-charcoal-border">
+                                    </div>
+                                    <div class="flex-1 space-y-1.5 text-center sm:text-left">
+                                        <span class="px-2.5 py-0.5 rounded-full bg-gold text-black font-extrabold text-[10px] uppercase" x-text="myKarya.statusKarya"></span>
+                                        <h3 class="text-base sm:text-lg font-black" x-text="myKarya.judul"></h3>
+                                        <p class="text-xs text-slate-400 line-clamp-2" x-text="myKarya.sinopsis"></p>
+                                        <p class="text-xs text-gold-dark dark:text-gold-light font-bold pt-1" x-text="'Catatan Juri: ' + (myKarya.catatanJuri || '-')"></p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <template x-for="(log, idx) in (myKarya.riwayat || [])" :key="idx">
+                                        <div class="p-3 rounded-xl premium-card flex items-center justify-between text-xs">
+                                            <div>
+                                                <span class="font-extrabold block" x-text="log.aksi"></span>
+                                                <span class="text-[11px] text-slate-400" x-text="log.judul + ' (' + (log.jmlKata || 0) + ' kata)'"></span>
+                                            </div>
+                                            <span class="text-[10px] font-mono-code font-bold text-gold-dark dark:text-gold-light" x-text="formatDateTime(log.waktu)"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- =========================================================== -->
+            <!-- B. HALAMAN ADMIN (ptmediatulisanmanusia@gmail.com)          -->
+            <!-- =========================================================== -->
+            <div x-show="isAdmin()" class="space-y-4">
+
+                <!-- 4 Kartu Ringkasan Admin -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="premium-card rounded-2xl p-4">
+                        <span class="text-[10px] font-extrabold uppercase text-gold-dark dark:text-gold-light">TOTAL PESERTA</span>
+                        <p class="text-xl font-black font-mono-code mt-2" x-text="adminPesertaList.length + ' Akun'"></p>
+                        <p class="text-[10px] text-emerald-500 font-bold mt-0.5" x-text="hitungOnlineCount() + ' Sedang Online'"></p>
+                    </div>
+
+                    <div class="premium-card rounded-2xl p-4">
+                        <span class="text-[10px] font-extrabold uppercase text-emerald-500">TERVERIFIKASI</span>
+                        <p class="text-xl font-black font-mono-code text-emerald-500 mt-2" x-text="adminPesertaList.filter(p => p.isVerified).length + ' Aktif'"></p>
+                        <p class="text-[10px] text-amber-400 font-bold mt-0.5" x-text="adminPesertaList.filter(p => !p.isVerified).length + ' Menunggu'"></p>
+                    </div>
+
+                    <div class="premium-card rounded-2xl p-4">
+                        <span class="text-[10px] font-extrabold uppercase text-gold-dark dark:text-gold-light">KARYA MASUK</span>
+                        <p class="text-xl font-black font-mono-code text-gold-dark dark:text-gold-light mt-2" x-text="hitungKaryaMasuk() + ' Novela'"></p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Siap Dikurasi</p>
+                    </div>
+
+                    <div class="premium-card rounded-2xl p-4 flex flex-col justify-between">
+                        <span class="text-[10px] font-extrabold uppercase text-silver">AKSI CEPAT</span>
+                        <div class="flex gap-1.5 mt-2">
+                            <button @click="showModalAddPeserta = true" class="flex-1 py-2 rounded-xl btn-gold text-[11px] flex items-center justify-center space-x-1">
+                                <i class="fa-solid fa-plus"></i><span>Akun</span>
+                            </button>
+                            <button @click="exportAdminCSV()" class="flex-1 py-2 rounded-xl btn-silver text-[11px] font-bold flex items-center justify-center space-x-1">
+                                <i class="fa-solid fa-download"></i><span>CSV</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB ADMIN 1: DAFTAR PESERTA, ONLINE TRACKER & CENTANG VERIFIKASI -->
+                <div x-show="activeTab === 'admin_peserta'" x-transition class="premium-card rounded-3xl p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-charcoal-border pb-4 mb-4">
+                        <div>
+                            <h2 class="text-base sm:text-lg font-black uppercase tracking-tight">Data Peserta & Verifikasi Sheet</h2>
+                            <p class="text-[11px] text-slate-400">Anda juga bisa mengetik akun peserta baru langsung di Google Sheet tab <b>PESERTA</b>.</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" x-model="adminSearch" placeholder="Cari peserta..." class="premium-input rounded-xl px-3 py-2 text-xs font-bold w-44 sm:w-56">
+                            <button @click="syncData(true)" class="px-3 py-2 rounded-xl btn-silver text-xs font-bold">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-charcoal-border">
+                        <table class="w-full text-left min-w-[920px] text-xs">
+                            <thead class="bg-slate-100 dark:bg-charcoal text-slate-600 dark:text-silver-light text-[11px] uppercase font-extrabold">
+                                <tr>
+                                    <th class="py-3 px-3">Status</th>
+                                    <th class="py-3 px-3">Peserta</th>
+                                    <th class="py-3 px-3">Email & Sandi</th>
+                                    <th class="py-3 px-3">Bukti Bayar</th>
+                                    <th class="py-3 px-3 text-center">Centang Aktif</th>
+                                    <th class="py-3 px-3">Karya Novela</th>
+                                    <th class="py-3 px-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-charcoal-border">
+                                <template x-for="p in filteredAdminPeserta()" :key="p.id">
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-white/5 transition">
+                                        <td class="p-3">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="w-2.5 h-2.5 rounded-full" :class="isUserOnline(p.lastSeen) ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'"></span>
+                                                <div>
+                                                    <span class="font-extrabold text-[10px] block" :class="isUserOnline(p.lastSeen) ? 'text-emerald-400' : 'text-slate-400'" x-text="isUserOnline(p.lastSeen) ? 'ONLINE' : 'OFFLINE'"></span>
+                                                    <span class="text-[9px] text-slate-500 font-mono-code" x-text="formatLastSeen(p.lastSeen)"></span>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td class="p-3">
+                                            <span class="font-mono-code text-[10px] font-bold text-gold-dark dark:text-gold-light block" x-text="p.id"></span>
+                                            <span class="font-extrabold text-slate-900 dark:text-white block" x-text="p.nama"></span>
+                                            <span class="text-[10px] text-slate-400" x-text="p.wa + ' • ' + p.kota"></span>
+                                        </td>
+
+                                        <td class="p-3 font-mono-code text-[11px]">
+                                            <span class="block" x-text="p.email"></span>
+                                            <span class="text-[10px] text-gold-dark dark:text-gold-light" x-text="'Sandi: ' + (p.sandi || p.wa)"></span>
+                                        </td>
+
+                                        <td class="p-3">
+                                            <span class="font-extrabold text-[10px] block" x-text="p.metodeBayar || 'TRANSFER'"></span>
+                                            <template x-if="p.linkBukti && p.linkBukti !== '-'">
+                                                <a :href="p.linkBukti" target="_blank" class="text-[10px] text-gold-dark dark:text-gold-light underline font-bold">Lihat Bukti</a>
+                                            </template>
+                                            <template x-if="!p.linkBukti || p.linkBukti === '-'">
+                                                <span class="text-[10px] text-slate-400">Manual</span>
+                                            </template>
+                                        </td>
+
+                                        <td class="p-3 text-center">
+                                            <button @click="toggleVerifyPeserta(p)" 
+                                                    class="px-3 py-1.5 rounded-xl font-extrabold text-[11px] inline-flex items-center space-x-1.5 transition"
+                                                    :class="p.isVerified ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-rose-500/15 text-rose-400 border border-rose-500/30'">
+                                                <i class="fa-solid" :class="p.isVerified ? 'fa-square-check' : 'fa-square'"></i>
+                                                <span x-text="p.isVerified ? 'Aktif' : 'Belum'"></span>
+                                            </button>
+                                        </td>
+
+                                        <td class="p-3">
+                                            <template x-if="p.karya">
+                                                <div>
+                                                    <span class="font-extrabold text-gold-dark dark:text-gold-light block truncate max-w-[150px]" x-text="p.karya.judul"></span>
+                                                    <span class="text-[10px] text-emerald-400 font-bold" x-text="p.karya.statusKarya"></span>
+                                                </div>
+                                            </template>
+                                            <template x-if="!p.karya">
+                                                <span class="text-[10px] text-slate-400" x-text="'Rencana: ' + (p.rencanaJudul || '-')"></span>
+                                            </template>
+                                        </td>
+
+                                        <td class="p-3 text-center">
+                                            <button @click="bukaInspeksiAdmin(p)" class="px-3 py-1.5 rounded-xl btn-gold text-[11px]">
+                                                <span>Buka</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB ADMIN 2: GALERI KARYA MASUK -->
+                <div x-show="activeTab === 'admin_karya'" x-transition class="premium-card rounded-3xl p-4 sm:p-6">
+                    <h2 class="text-base sm:text-lg font-black uppercase tracking-tight border-b border-slate-200 dark:border-charcoal-border pb-4 mb-4">Galeri Karya Masuk</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <template x-for="p in adminPesertaList.filter(item => item.karya !== null)" :key="p.id">
+                            <div class="p-4 rounded-2xl bg-slate-100 dark:bg-charcoal-deep border border-slate-300 dark:border-charcoal-border flex space-x-4">
+                                <div class="flex space-x-1.5 shrink-0">
+                                    <img :src="p.karya.coverDepan || 'logo.png'" class="w-20 aspect-[2/3] rounded-xl object-cover bg-charcoal border border-gold/40">
+                                    <img :src="p.karya.coverBelakang || 'logo.png'" class="w-20 aspect-[2/3] rounded-xl object-cover bg-charcoal border border-charcoal-border hidden sm:block">
+                                </div>
+                                <div class="flex-1 flex flex-col justify-between min-w-0">
+                                    <div>
+                                        <span class="text-[10px] font-mono-code font-bold text-gold-dark dark:text-gold-light" x-text="p.nama + ' (' + p.id + ')'"></span>
+                                        <h3 class="font-black text-sm sm:text-base truncate mt-0.5" x-text="p.karya.judul"></h3>
+                                        <p class="text-[11px] text-slate-400 line-clamp-2 mt-1" x-text="p.karya.sinopsis"></p>
+                                    </div>
+                                    <div class="flex items-center justify-between pt-3 mt-2 border-t border-slate-200 dark:border-charcoal-border">
+                                        <span class="text-[10px] font-mono-code text-slate-400" x-text="(p.karya.jumlahKata || 0) + ' Kata'"></span>
+                                        <button @click="bukaInspeksiAdmin(p)" class="px-3 py-1.5 rounded-xl btn-gold text-[11px]">Baca Karya</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- LOGIKA JAVASCRIPT UTAMA (TERINTEGRASI LINK SHEET BARU)              -->
+    <!-- =================================================================== -->
+    <script>
+        const ADMIN_EMAIL = "ptmediatulisanmanusia@gmail.com";
+        const DEFAULT_NOVELA_GAS_URL = "https://script.google.com/macros/s/AKfycbw3fF2g1LcAJQFfyR8BlXohFXPwIMO9oLSpEdlAR0Wkuw8obCKYp3OboUm9-U-_tNOm/exec";
+
+        let deferredPrompt = null;
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('novelaApp', () => ({
+                isDark: true,
+                isLoggedIn: false,
+                authMode: 'login',
+                regStep: 1,
+                authError: '',
+
+                // State PWA Install (Otomatis hilang setelah diunduh)
+                canInstallPWA: false,
+                isAppInstalled: false,
+
+                scriptUrl: localStorage.getItem('MTM_NOVELA_GAS_URL') || DEFAULT_NOVELA_GAS_URL,
+                scriptUrlInput: '',
+                showModalConfig: false,
+                showModalAddPeserta: false,
+
+                currentUser: null,
+                myKarya: null,
+                activeTab: 'beranda',
+
+                loginForm: { email: '', password: '' },
+                regForm: {
+                    namaLengkap: '',
+                    namaPena: '',
+                    email: '',
+                    password: '',
+                    wa: '',
+                    asalKota: '',
+                    rencanaJudul: '',
+                    metodeBayar: 'QRIS',
+                    setujuSnk: false,
+                    buktiBase64: '',
+                    buktiPreview: ''
+                },
+
+                manualForm: {
+                    nama: '', namaPena: '', email: '', password: '', wa: '', kota: '', rencanaJudul: '', isVerified: true
+                },
+
+                karyaForm: {
+                    judul: '',
+                    genre: 'Romansa / Drama',
+                    sinopsis: '',
+                    isiNovela: '',
+                    linkGdocs: '',
+                    coverDepanBase64: '',
+                    coverBelakangBase64: '',
+                    previewDepan: '',
+                    previewBelakang: '',
+                    existingCoverDepan: '',
+                    existingCoverBelakang: ''
+                },
+
+                adminPesertaList: [],
+                adminSearch: '',
+                showAdminInspectModal: false,
+                selectedPeserta: null,
+                adminEditStatus: 'Menunggu Kurasi',
+                adminEditCatatan: '',
+
+                showPrintModal: false,
+                previewTitle: 'Bukti Karya Novela',
+                previewHtml: '',
+                previewFilename: 'Bukti_Novela_MTM.pdf',
+
+                isGlobalLoading: false,
+                loadingText: 'Memproses...',
+                showToast: false,
+                toastMessage: '',
+                isSyncing: false,
+                realtimeClock: '',
+
+                initApp() {
+                    if (!localStorage.getItem('MTM_NOVELA_GAS_URL')) {
+                        localStorage.setItem('MTM_NOVELA_GAS_URL', DEFAULT_NOVELA_GAS_URL);
+                        this.scriptUrl = DEFAULT_NOVELA_GAS_URL;
+                    }
+
+                    // Deteksi Status Instalasi PWA (Sama seperti SIMKEU)
+                    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || localStorage.getItem('NOVELA_PWA_INSTALLED') === 'true') {
+                        this.isAppInstalled = true;
+                        this.canInstallPWA = false;
+                    }
+
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        deferredPrompt = e;
+                        if (!this.isAppInstalled) {
+                            this.canInstallPWA = true;
+                        }
+                    });
+
+                    window.addEventListener('appinstalled', () => {
+                        this.isAppInstalled = true;
+                        this.canInstallPWA = false;
+                        deferredPrompt = null;
+                        localStorage.setItem('NOVELA_PWA_INSTALLED', 'true');
+                        this.triggerToast('Aplikasi Terinstal!');
+                    });
+
+                    const savedTheme = localStorage.getItem('MTM_NOVELA_THEME_DARK');
+                    this.isDark = savedTheme === null ? true : savedTheme === 'true';
+                    document.documentElement.classList.toggle('dark', this.isDark);
+
+                    this.updateClock();
+                    setInterval(() => this.updateClock(), 1000);
+
+                    const savedUser = localStorage.getItem('MTM_NOVELA_SESSION');
+                    if (savedUser) {
+                        try {
+                            this.currentUser = JSON.parse(savedUser);
+                            this.isLoggedIn = true;
+                            this.activeTab = this.isAdmin() ? 'admin_peserta' : 'beranda';
+                            this.syncData(false);
+                        } catch (e) {}
+                    }
+
+                    setInterval(() => {
+                        if (this.isLoggedIn) this.syncData(false);
+                    }, 25000);
+                },
+
+                async installPWA() {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        this.isAppInstalled = true;
+                        this.canInstallPWA = false;
+                        localStorage.setItem('NOVELA_PWA_INSTALLED', 'true');
+                    }
+                    deferredPrompt = null;
+                },
+
+                isAdmin() {
+                    return this.currentUser && String(this.currentUser.email).toLowerCase() === ADMIN_EMAIL;
+                },
+
+                updateClock() {
+                    const now = new Date();
+                    const tgl = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
+                    this.realtimeClock = `${tgl}, ${jam}`;
+                },
+
+                toggleTheme() {
+                    this.isDark = !this.isDark;
+                    document.documentElement.classList.toggle('dark', this.isDark);
+                    localStorage.setItem('MTM_NOVELA_THEME_DARK', String(this.isDark));
+                },
+
+                triggerToast(msg) {
+                    this.toastMessage = msg;
+                    this.showToast = true;
+                    setTimeout(() => { this.showToast = false; }, 2500);
+                },
+
+                salinTeks(teks) {
+                    navigator.clipboard.writeText(teks);
+                    this.triggerToast('Nomor Disalin!');
+                },
+
+                openModalConfig() {
+                    this.scriptUrlInput = this.scriptUrl;
+                    this.showModalConfig = true;
+                },
+
+                saveScriptUrl() {
+                    this.scriptUrl = (this.scriptUrlInput || '').trim() || DEFAULT_NOVELA_GAS_URL;
+                    localStorage.setItem('MTM_NOVELA_GAS_URL', this.scriptUrl);
+                    this.showModalConfig = false;
+                    this.triggerToast('Server Disimpan!');
+                    if (this.isLoggedIn) this.syncData(true);
+                },
+
+                // ===============================================================
+                // PENDAFTARAN 2 LANGKAH & KONFIRMASI WHATSAPP OTOMATIS
+                // ===============================================================
+                keLangkahBayar() {
+                    this.authError = '';
+                    if (!this.regForm.namaLengkap || !this.regForm.email || !this.regForm.password || !this.regForm.wa || !this.regForm.asalKota || !this.regForm.rencanaJudul) {
+                        this.authError = 'Mohon lengkapi semua kolom wajib (*)!';
+                        return;
+                    }
+                    if (!this.regForm.setujuSnk) {
+                        this.authError = 'Mohon centang persetujuan Syarat & Ketentuan!';
+                        return;
+                    }
+                    this.regStep = 2;
+                },
+
+                handleBuktiRegister(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    this.compressImage(file, (base64) => {
+                        this.regForm.buktiBase64 = base64;
+                        this.regForm.buktiPreview = base64;
+                    });
+                },
+
+                async handleRegister() {
+                    this.authError = '';
+                    if (!this.regForm.buktiBase64) {
+                        this.authError = 'Mohon unggah foto bukti transfer terlebih dahulu!';
+                        return;
+                    }
+
+                    this.loadingText = 'Mendaftarkan Akun...';
+                    this.isGlobalLoading = true;
+
+                    try {
+                        const res = await fetch(this.scriptUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({
+                                action: 'REGISTER',
+                                ...this.regForm
+                            })
+                        });
+                        const json = await res.json();
+                        if (json.status === 'SUCCESS') {
+                            this.currentUser = json.user;
+                            this.myKarya = null;
+                            this.karyaForm.judul = this.regForm.rencanaJudul;
+                            this.finishLogin('Pendaftaran Berhasil!');
+
+                            // Kirim Konfirmasi ke WhatsApp Admin MTM
+                            const pesanWA = `Halo Admin Media Tulisan Manusia, saya telah mendaftar *Lomba Menulis Novela 2026*.\n\n*DATA PENDAFTAR:*\n- ID: ${json.user.id}\n- Nama: ${this.regForm.namaLengkap}\n- Email: ${this.regForm.email}\n- WA: ${this.regForm.wa}\n- Kota: ${this.regForm.asalKota}\n- Rencana Judul: ${this.regForm.rencanaJudul}\n- Metode: ${this.regForm.metodeBayar}\n- Bukti: ${json.linkText || '-'}`;
+                            setTimeout(() => {
+                                window.open(`https://wa.me/6288294448222?text=${encodeURIComponent(pesanWA)}`, '_blank');
+                            }, 800);
+                        } else {
+                            this.authError = json.message || 'Gagal mendaftar.';
+                        }
+                    } catch (e) {
+                        this.authError = 'Gagal terhubung ke Google Sheets. Pastikan Script sudah di-Deploy.';
+                    } finally {
+                        this.isGlobalLoading = false;
+                    }
+                },
+
+                async simpanPesertaManual() {
+                    this.loadingText = 'Menambahkan Akun ke Sheet...';
+                    this.isGlobalLoading = true;
+                    try {
+                        const res = await fetch(this.scriptUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({
+                                action: 'REGISTER',
+                                byAdmin: true,
+                                namaLengkap: this.manualForm.nama,
+                                namaPena: this.manualForm.namaPena,
+                                email: this.manualForm.email,
+                                password: this.manualForm.password,
+                                wa: this.manualForm.wa,
+                                asalKota: this.manualForm.kota,
+                                rencanaJudul: this.manualForm.rencanaJudul,
+                                metodeBayar: 'MANUAL SHEET',
+                                isVerified: this.manualForm.isVerified
+                            })
+                        });
+                        const json = await res.json();
+                        if (json.status === 'SUCCESS') {
+                            this.adminPesertaList = json.adminData || this.adminPesertaList;
+                            this.showModalAddPeserta = false;
+                            this.manualForm = { nama: '', namaPena: '', email: '', password: '', wa: '', kota: '', rencanaJudul: '', isVerified: true };
+                            this.triggerToast('Akun Peserta Ditambahkan!');
+                        } else {
+                            this.triggerToast(json.message || 'Gagal membuat akun');
+                        }
+                    } catch (e) {
+                        this.triggerToast('Gagal koneksi ke Sheet');
+                    } finally {
+                        this.isGlobalLoading = false;
+                    }
+                },
+
+                async handleLogin() {
+                    this.authError = '';
+                    const email = (this.loginForm.email || '').trim().toLowerCase();
+                    const pass = (this.loginForm.password || '').trim();
+
+                    this.loadingText = 'Memeriksa Akun di Sheet...';
+                    this.isGlobalLoading = true;
+
+                    try {
+                        const res = await fetch(this.scriptUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'LOGIN', email: email, password: pass })
+                        });
+                        const json = await res.json();
+                        if (json.status === 'SUCCESS') {
+                            this.currentUser = json.user;
+                            if (this.isAdmin()) {
+                                this.adminPesertaList = json.adminData || [];
+                            } else {
+                                this.myKarya = json.karya || null;
+                                this.populateKaryaForm();
+                            }
+                            this.finishLogin('Halo, ' + this.currentUser.nama + '!');
+                        } else {
+                            this.authError = json.message || 'Email atau Sandi salah!';
+                        }
+                    } catch (e) {
+                        this.authError = 'Gagal terhubung ke Google Sheets.';
+                    } finally {
+                        this.isGlobalLoading = false;
+                    }
+                },
+
+                finishLogin(msg) {
+                    localStorage.setItem('MTM_NOVELA_SESSION', JSON.stringify(this.currentUser));
+                    this.isLoggedIn = true;
+                    this.activeTab = this.isAdmin() ? 'admin_peserta' : 'beranda';
+                    this.triggerToast(msg);
+                },
+
+                logout() {
+                    localStorage.removeItem('MTM_NOVELA_SESSION');
+                    this.isLoggedIn = false;
+                    this.currentUser = null;
+                    this.myKarya = null;
+                    this.loginForm.password = '';
+                },
+
+                async syncData(showNotif = false) {
+                    if (!this.currentUser) return;
+                    this.isSyncing = true;
+                    try {
+                        const res = await fetch(this.scriptUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'PING_USER', email: this.currentUser.email })
+                        });
+                        const json = await res.json();
+                        if (json.status === 'SUCCESS') {
+                            if (this.isAdmin()) {
+                                this.adminPesertaList = json.adminData || [];
+                            } else {
+                                this.currentUser.isVerified = json.isVerified;
+                                this.currentUser.rencanaJudul = json.rencanaJudul;
+                                this.currentUser.linkBukti = json.linkBukti;
+                                this.myKarya = json.karya || null;
+                                localStorage.setItem('MTM_NOVELA_SESSION', JSON.stringify(this.currentUser));
+                                if (this.myKarya && !this.karyaForm.judul) this.populateKaryaForm();
+                            }
+                            if (showNotif) this.triggerToast('Tersinkron dengan Sheet!');
+                        }
+                    } catch (e) {
+                        if (showNotif) this.triggerToast('Gagal Sinkron');
+                    } finally {
+                        this.isSyncing = false;
+                    }
+                },
+
+                bukaTabKarya() {
+                    this.activeTab = 'karya';
+                    this.populateKaryaForm();
+                },
+
+                populateKaryaForm() {
+                    if (this.myKarya) {
+                        this.karyaForm.judul = this.myKarya.judul || '';
+                        this.karyaForm.genre = this.myKarya.genre || 'Romansa / Drama';
+                        this.karyaForm.sinopsis = this.myKarya.sinopsis || '';
+                        this.karyaForm.isiNovela = this.myKarya.isiNovela || '';
+                        this.karyaForm.linkGdocs = this.myKarya.linkGdocs || '';
+                        this.karyaForm.existingCoverDepan = this.myKarya.coverDepan || '';
+                        this.karyaForm.existingCoverBelakang = this.myKarya.coverBelakang || '';
+                    } else if (this.currentUser?.rencanaJudul && !this.karyaForm.judul) {
+                        this.karyaForm.judul = this.currentUser.rencanaJudul;
+                    }
+                },
+
+                compressImage(file, callback) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const maxW = 750;
+                            const scale = Math.min(1, maxW / img.width);
+                            canvas.width = img.width * scale;
+                            canvas.height = img.height * scale;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            callback(canvas.toDataURL('image/jpeg', 0.82));
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+
+                handleImageUpload(event, posisi) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    this.compressImage(file, (base64) => {
+                        if (posisi === 'depan') {
+                            this.karyaForm.coverDepanBase64 = base64;
+                            this.karyaForm.previewDepan = base64;
+                        } else {
+                            this.karyaForm.coverBelakangBase64 = base64;
+                            this.karyaForm.previewBelakang = base64;
+                        }
+                    });
+                },
+
+                hitungKata(teks) {
+                    if (!teks || !teks.trim()) return 0;
+                    return teks.trim().split(/\s+/).length;
+                },
+
+                async submitKaryaNovela() {
+                    if (!this.currentUser?.isVerified) {
+                        this.triggerToast('Akun belum dicentang Admin!');
+                        return;
+                    }
+                    if (!this.karyaForm.previewDepan && !this.karyaForm.existingCoverDepan) {
+                        this.triggerToast('Unggah Cover Depan terlebih dahulu!');
+                        return;
+                    }
+                    if (!this.karyaForm.previewBelakang && !this.karyaForm.existingCoverBelakang) {
+                        this.triggerToast('Unggah Cover Belakang terlebih dahulu!');
+                        return;
+                    }
+
+                    const jmlKata = this.hitungKata(this.karyaForm.isiNovela);
+                    this.loadingText = 'Menyimpan Karya ke Sheet...';
+                    this.isGlobalLoading = true;
+
+                    try {
+                        const res = await fetch(this.scriptUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({
+                                action: 'SAVE_KARYA',
+                                idPeserta: this.currentUser.id,
+                                email: this.currentUser.email,
+                                nama: this.currentUser.nama,
+                                judul: this.karyaForm.judul,
+                                genre: this.karyaForm.genre,
+                                sinopsis: this.karyaForm.sinopsis,
+                                isiNovela: this.karyaForm.isiNovela,
+                                jumlahKata: jmlKata,
+                                linkGdocs: this.karyaForm.linkGdocs,
+                                coverDepanBase64: this.karyaForm.coverDepanBase64,
+                                coverBelakangBase64: this.karyaForm.coverBelakangBase64,
+                                existingCoverDepan: this.karyaForm.existingCoverDepan,
+                                existingCoverBelakang: this.karyaForm.existingCoverBelakang
+                            })
+                        });
+                        const json = await res.json();
+                        if (json.status === 'SUCCESS') {
+                            this.myKarya = json.karya;
+                            this.karyaForm.coverDepanBase64 = '';
+                            this.karyaForm.coverBelakangBase64 = '';
+                            this.populateKaryaForm();
+                            this.activeTab = 'riwayat';
+                            this.triggerToast('Karya Tersimpan!');
+                        } else {
+                            this.triggerToast(json.message || 'Gagal menyimpan karya.');
+                        }
+                    } catch (e) {
+                        this.triggerToast('Gagal koneksi ke Sheet.');
+                    } finally {
+                        this.isGlobalLoading = false;
+                    }
+                },
+
+                // ===============================================================
+                // KONTROL ADMIN
+                // ===============================================================
+                filteredAdminPeserta() {
+                    const q = (this.adminSearch || '').toLowerCase();
+                    if (!q) return this.adminPesertaList;
+                    return this.adminPesertaList.filter(p =>
+                        (p.nama || '').toLowerCase().includes(q) ||
+                        (p.email || '').toLowerCase().includes(q) ||
+                        (p.id || '').toLowerCase().includes(q) ||
+                        (p.karya?.judul || '').toLowerCase().includes(q)
+                    );
+                },
+
+                isUserOnline(lastSeenIso) {
+                    if (!lastSeenIso) return false;
+                    const diffSec = (Date.now() - new Date(lastSeenIso).getTime()) / 1000;
+                    return diffSec < 180;
+                },
+
+                hitungOnlineCount() {
+                    return this.adminPesertaList.filter(p => this.isUserOnline(p.lastSeen)).length;
+                },
+
+                hitungKaryaMasuk() {
+                    return this.adminPesertaList.filter(p => p.karya !== null).length;
+                },
+
+                formatLastSeen(iso) {
+                    if (!iso) return 'Belum masuk';
+                    const diffMin = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+                    if (diffMin < 1) return 'Baru saja';
+                    if (diffMin < 60) return `${diffMin} mnt lalu`;
+                    const diffHr = Math.floor(diffMin / 60);
+                    if (diffHr < 24) return `${diffHr} jam lalu`;
+                    return new Date(iso).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+                },
+
+                formatDateTime(iso) {
+                    if (!iso) return '-';
+                    return new Date(iso).toLocaleString('id-ID', {
+                        day: '2-digit', month: 'short', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                },
+
+                async toggleVerifyPeserta(peserta) {
+                    const newVal = !peserta.isVerified;
+                    peserta.isVerified = newVal;
+                    try {
+                        await fetch(this.scriptUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({
+                                action: 'ADMIN_TOGGLE_VERIFY',
+                                idPeserta: peserta.id,
+                                email: peserta.email,
+                                isVerified: newVal
+                            })
+                        });
+                        this.triggerToast(newVal ? 'Centang Aktif!' : 'Centang Dilepas!');
+                    } catch (e) {
+                        this.triggerToast('Gagal mengubah status');
+                    }
+                },
+
+                bukaInspeksiAdmin(peserta) {
+                    this.selectedPeserta = peserta;
+                    if (peserta.karya) {
+                        this.adminEditStatus = peserta.karya.statusKarya || 'Menunggu Kurasi';
+                        this.adminEditCatatan = peserta.karya.catatanJuri || '';
+                    }
+                    this.showAdminInspectModal = true;
+                },
+
+                async simpanPenilaianAdmin() {
+                    if (!this.selectedPeserta || !this.selectedPeserta.karya) return;
+                    this.selectedPeserta.karya.statusKarya = this.adminEditStatus;
+                    this.selectedPeserta.karya.catatanJuri = this.adminEditCatatan;
+                    try {
+                        await fetch(this.scriptUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({
+                                action: 'ADMIN_UPDATE_KARYA_STATUS',
+                                idPeserta: this.selectedPeserta.id,
+                                email: this.selectedPeserta.email,
+                                statusKarya: this.adminEditStatus,
+                                catatanJuri: this.adminEditCatatan
+                            })
+                        });
+                        this.triggerToast('Status Disimpan!');
+                        this.showAdminInspectModal = false;
+                    } catch (e) {
+                        this.triggerToast('Gagal menyimpan');
+                    }
+                },
+
+                exportAdminCSV() {
+                    let csv = "ID_Peserta,Nama_Lengkap,Nama_Pena,Email,Sandi,WhatsApp,Kota,Rencana_Judul,Metode_Bayar,Status_Verifikasi,Judul_Novela,Jumlah_Kata,Status_Karya\n";
+                    this.adminPesertaList.forEach(p => {
+                        csv += `"${p.id}","${p.nama}","${p.namaPena}","${p.email}","${p.sandi}","${p.wa}","${p.kota}","${p.rencanaJudul}","${p.metodeBayar}","${p.isVerified ? 'AKTIF' : 'BELUM'}","${p.karya ? p.karya.judul : '-'}",${p.karya ? p.karya.jumlahKata : 0},"${p.karya ? p.karya.statusKarya : 'Belum Kumpul'}"\n`;
+                    });
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `Data_Lomba_Novela_MTM.csv`;
+                    link.click();
+                    this.triggerToast('CSV Diunduh!');
+                },
+
+                cetakBuktiKarya() {
+                    if (!this.myKarya || !this.currentUser) return;
+                    const docNo = `BUKTI/${this.currentUser.id}`;
+                    const tglCetak = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+                    this.previewFilename = `Bukti_Novela_${this.currentUser.id}.pdf`;
+
+                    const qrText = [
+                        "PT MEDIA TULISAN MANUSIA",
+                        "BUKTI PENGUMPULAN NOVELA 2026",
+                        "ID: " + this.currentUser.id,
+                        "Penulis: " + this.currentUser.nama,
+                        "Judul: " + this.myKarya.judul,
+                        "Status: " + (this.myKarya.statusKarya || "Tercatat")
+                    ].join("\n");
+
+                    const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=4&data=" + encodeURIComponent(qrText);
+
+                    this.previewHtml = `
+                        <div style="font-family: 'Inter', sans-serif; color: #14161b;">
+                            <table style="width: 100%; border-bottom: 3px double #14161b; padding-bottom: 12px; margin-bottom: 16px;">
+                                <tr>
+                                    <td style="width: 65px; vertical-align: middle;">
+                                        <img src="pt.png" onerror="this.src='logo.png'; this.onerror=null;" alt="Logo PT" style="width: 56px; height: 56px; object-fit: contain;">
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <div style="font-size: 18px; font-weight: 900; color: #14161b;">PT MEDIA TULISAN MANUSIA</div>
+                                        <div style="font-size: 11px; font-weight: 700; color: #475569;">LOMBA MENULIS NOVELA NASIONAL 2026</div>
+                                        <div style="font-size: 10px; color: #64748b;">Sukorejo, Kab. Pasuruan & Kota Malang, Jawa Timur</div>
+                                    </td>
+                                    <td style="text-align: right; vertical-align: middle;">
+                                        <div style="background: #14161b; color: #e5c158; font-weight: 800; font-size: 11px; padding: 5px 10px; border-radius: 6px; display: inline-block;">BUKTI KARYA</div>
+                                        <div style="font-size: 12px; font-weight: 800; margin-top: 6px; font-family: monospace;">${docNo}</div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table style="width: 100%; font-size: 12px; margin-bottom: 18px;">
+                                <tr>
+                                    <td style="padding: 4px 0; width: 22%;"><b>ID Peserta</b></td>
+                                    <td style="padding: 4px 0; width: 33%;">: <b>${this.currentUser.id}</b></td>
+                                    <td style="padding: 4px 0; width: 20%;"><b>Waktu Edit</b></td>
+                                    <td style="padding: 4px 0; width: 25%;">: ${this.formatDateTime(this.myKarya.waktuUpdate)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 0;"><b>Nama Penulis</b></td>
+                                    <td style="padding: 4px 0;">: <b>${this.currentUser.nama}</b> (${this.currentUser.namaPena || '-'})</td>
+                                    <td style="padding: 4px 0;"><b>Status</b></td>
+                                    <td style="padding: 4px 0;">: <b>${this.myKarya.statusKarya}</b></td>
+                                </tr>
+                            </table>
+
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+                                <thead>
+                                    <tr style="background: #14161b; color: #e5c158;">
+                                        <th style="padding: 10px; border: 1px solid #14161b; text-align: left;">JUDUL NOVELA & SINOPSIS</th>
+                                        <th style="padding: 10px; border: 1px solid #14161b; text-align: center; width: 120px;">GENRE</th>
+                                        <th style="padding: 10px; border: 1px solid #14161b; text-align: right; width: 120px;">JUMLAH KATA</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1;">
+                                            <div style="font-weight: 900; font-size: 14px; text-transform: uppercase;">${this.myKarya.judul}</div>
+                                            <div style="font-size: 11px; color: #475569; margin-top: 4px;">${(this.myKarya.sinopsis || '').substring(0, 260)}...</div>
+                                        </td>
+                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700;">${this.myKarya.genre}</td>
+                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 800; font-family: monospace;">${(this.myKarya.jumlahKata || 0).toLocaleString('id-ID')} Kata</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 24px; font-size: 11px;">
+                                <tr>
+                                    <td style="width: 55%; vertical-align: middle;">
+                                        <div style="display: flex; align-items: center; gap: 12px; border: 1px dashed #94a3b8; padding: 10px; border-radius: 10px; background: #f8fafc;">
+                                            <img src="${qrUrl}" alt="QR" style="width: 84px; height: 84px; border: 1px solid #e2e8f0; padding: 3px; background: #fff; border-radius: 6px;">
+                                            <div>
+                                                <div style="font-weight: 800; color: #14161b; font-size: 11px;">BUKTI SAH PENGUMPULAN KARYA</div>
+                                                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Naskah dan Cover telah tersimpan di database PT Media Tulisan Manusia.</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="width: 45%; text-align: center; vertical-align: bottom;">
+                                        <div style="font-weight: 600; color: #334155;">Pasuruan, ${tglCetak}</div>
+                                        <div style="font-weight: 800; color: #14161b; margin-bottom: 54px;">Direktur Utama,</div>
+                                        <div style="font-weight: 900; font-size: 13px; text-decoration: underline; color: #14161b;">ACH. SUFYAN WAHYUDI</div>
+                                        <div style="font-weight: 700; font-size: 10px; color: #64748b;">PT MEDIA TULISAN MANUSIA</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    `;
+                    this.showPrintModal = true;
+                },
+
+                unduhDokumenPDF() {
+                    const el = document.getElementById('areaDokumenCetak');
+                    if (!el) return;
+                    this.loadingText = 'Mengunduh PDF...';
+                    this.isGlobalLoading = true;
+                    const opt = {
+                        margin: 0.4,
+                        filename: this.previewFilename,
+                        image: { type: 'jpeg', quality: 1 },
+                        html2canvas: { scale: 2, useCORS: true, logging: false },
+                        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                    };
+                    html2pdf().set(opt).from(el).save().then(() => {
+                        this.isGlobalLoading = false;
+                        this.triggerToast('PDF Diunduh!');
+                    });
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
