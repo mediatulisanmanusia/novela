@@ -262,7 +262,7 @@
                     </span>
                     <div>
                         <h3 class="font-bold text-xs sm:text-sm" x-text="previewTitle">Bukti Karya</h3>
-                        <p class="text-[10px] text-slate-400">PT Media Tulisan Manusia</p>
+                        <p class="text-[10px] text-slate-400">Media Tulisan Manusia</p>
                     </div>
                 </div>
                 <button @click="showPrintModal = false" class="w-8 h-8 rounded-lg bg-charcoal-card text-slate-400 hover:text-white flex items-center justify-center">
@@ -442,7 +442,7 @@
                     <h1 class="text-xl font-black tracking-tight text-white">LOMBA NOVELA</h1>
                     <span class="px-2 py-0.5 text-[9px] font-extrabold rounded bg-gold/20 text-gold-light border border-gold/40 uppercase">2026</span>
                 </div>
-                <p class="text-[11px] font-semibold text-silver mt-1 uppercase tracking-wider">PT Media Tulisan Manusia</p>
+                <p class="text-[11px] font-semibold text-silver mt-1 uppercase tracking-wider">Media Tulisan Manusia</p>
             </div>
 
             <!-- Pilihan Tab: Masuk / Daftar -->
@@ -586,14 +586,14 @@
                         <div x-show="regForm.metodeBayar === 'QRIS'" class="mt-3 space-y-2">
                             <p class="text-[11px] text-silver">Pindai kode QRIS Media Tulisan Manusia:</p>
                             <div class="inline-block p-2 bg-white rounded-xl">
-                                <img src="payqris.png" alt="QRIS" class="w-44 h-44 object-contain mx-auto" onerror="this.outerHTML='<div class=\'w-44 h-44 flex items-center justify-center text-xs text-black font-bold p-4\'>QRIS PT MEDIA TULISAN MANUSIA</div>'">
+                                <img src="payqris.png" alt="QRIS" class="w-44 h-44 object-contain mx-auto" onerror="this.outerHTML='<div class=\'w-44 h-44 flex items-center justify-center text-xs text-black font-bold p-4\'>QRIS Media Tulisan Manusia</div>'">
                             </div>
                         </div>
 
                         <!-- Tampilan OCBC -->
                         <div x-show="regForm.metodeBayar === 'OCBC'" class="mt-3 space-y-2">
                             <p class="text-xs font-extrabold text-white">BANK OCBC NISP</p>
-                            <p class="text-[11px] text-silver">a.n. <b>PT MEDIA TULISAN MANUSIA</b></p>
+                            <p class="text-[11px] text-silver">a.n. <b>PT Media Tulisan Manusia</b></p>
                             <div class="flex items-center justify-between bg-charcoal p-2.5 rounded-xl border border-charcoal-border max-w-xs mx-auto">
                                 <span class="font-mono-code font-black text-sm text-gold-light">693800151450</span>
                                 <button type="button" @click="salinTeks('693800151450')" class="px-2.5 py-1 rounded-lg bg-gold/20 text-gold-light text-[10px] font-bold">Salin</button>
@@ -634,7 +634,7 @@
             </form>
 
             <div class="mt-6 pt-4 border-t border-charcoal-border flex items-center justify-between text-[10px] text-slate-500">
-                <span>PT Media Tulisan Manusia</span>
+                <span>Media Tulisan Manusia</span>
                 <span class="font-mono-code text-gold-light">● Database Aktif</span>
             </div>
         </div>
@@ -662,7 +662,7 @@
                                       :class="isAdmin() ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'bg-gold/20 text-gold-dark dark:text-gold-light border border-gold/40'"
                                       x-text="isAdmin() ? 'ADMIN' : 'PESERTA'"></span>
                             </div>
-                            <p class="text-[9.5px] sm:text-[11px] font-bold text-slate-500 dark:text-silver uppercase tracking-wider whitespace-nowrap truncate mt-0.5">PT MEDIA TULISAN MANUSIA</p>
+                            <p class="text-[9.5px] sm:text-[11px] font-bold text-slate-500 dark:text-silver uppercase tracking-wider whitespace-nowrap truncate mt-0.5">Media Tulisan Manusia</p>
                         </div>
                     </div>
 
@@ -1827,7 +1827,7 @@
                     this.previewFilename = `Bukti_Novela_${this.currentUser.id}.pdf`;
 
                     const qrText = [
-                        "PT MEDIA TULISAN MANUSIA",
+                        "Media Tulisan Manusia",
                         "BUKTI PENGUMPULAN NOVELA 2026",
                         "ID: " + this.currentUser.id,
                         "Penulis: " + this.currentUser.nama,
@@ -1845,7 +1845,7 @@
                                         <img src="pt.png" onerror="this.src='logo.png'; this.onerror=null;" alt="Logo PT" style="width: 56px; height: 56px; object-fit: contain;">
                                     </td>
                                     <td style="vertical-align: middle;">
-                                        <div style="font-size: 18px; font-weight: 900; color: #14161b;">PT MEDIA TULISAN MANUSIA</div>
+                                        <div style="font-size: 18px; font-weight: 900; color: #14161b;">Media Tulisan Manusia</div>
                                         <div style="font-size: 11px; font-weight: 700; color: #475569;">LOMBA MENULIS NOVELA NASIONAL 2026</div>
                                         <div style="font-size: 10px; color: #64748b;">Sukorejo, Kab. Pasuruan & Kota Malang, Jawa Timur</div>
                                     </td>
@@ -1906,7 +1906,7 @@
                                         <div style="font-weight: 600; color: #334155;">Pasuruan, ${tglCetak}</div>
                                         <div style="font-weight: 800; color: #14161b; margin-bottom: 54px;">Direktur Utama,</div>
                                         <div style="font-weight: 900; font-size: 13px; text-decoration: underline; color: #14161b;">ACH. SUFYAN WAHYUDI</div>
-                                        <div style="font-weight: 700; font-size: 10px; color: #64748b;">PT MEDIA TULISAN MANUSIA</div>
+                                        <div style="font-weight: 700; font-size: 10px; color: #64748b;">Media Tulisan Manusia</div>
                                     </td>
                                 </tr>
                             </table>
