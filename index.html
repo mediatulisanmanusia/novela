@@ -483,7 +483,7 @@
                         </span>
                         <input type="password" x-model="loginForm.password" required placeholder="••••••••" class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:outline-none focus:border-gold transition">
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-1.5">* Jika akun dibuatkan oleh Admin di Sheet, gunakan <b>Sandi</b> atau <b>Nomor WhatsApp</b> Anda.</p>
+                    <p class="text-[10px] text-slate-400 mt-1.5">* Jika akun dibuatkan oleh Admin, gunakan <b>Sandi</b> atau <b>Nomor WhatsApp</b> Anda.</p>
                 </div>
 
                 <button type="submit" class="w-full py-3 rounded-xl btn-gold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-2">
@@ -803,7 +803,7 @@
                                     <i class="fa-solid text-sm" :class="currentUser?.isVerified ? 'fa-unlock-keyhole text-emerald-400' : 'fa-lock text-rose-400'"></i>
                                     <span class="font-extrabold text-xs sm:text-sm text-white" x-text="currentUser?.isVerified ? 'Pengumpulan Karya Terbuka' : 'Pengumpulan Karya Terkunci'"></span>
                                 </div>
-                                <p class="text-[11px] text-silver" x-text="currentUser?.isVerified ? 'Unggah Cover Depan, Cover Belakang, Sinopsis, dan Tulisan Novela Anda.' : 'Menunggu Admin mencentang verifikasi pendaftaran Anda di Google Sheet.'"></p>
+                                <p class="text-[11px] text-silver" x-text="currentUser?.isVerified ? 'Unggah Cover Depan, Cover Belakang, Sinopsis, dan Tulisan Novela Anda.' : 'Menunggu Admin memverifikasi pendaftaran Anda.'"></p>
                             </div>
 
                             <button @click="bukaTabKarya()" 
@@ -1107,8 +1107,8 @@
                 <div x-show="activeTab === 'admin_peserta'" x-transition class="premium-card rounded-3xl p-4 sm:p-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-charcoal-border pb-4 mb-4">
                         <div>
-                            <h2 class="text-base sm:text-lg font-black uppercase tracking-tight">Data Peserta & Verifikasi Sheet</h2>
-                            <p class="text-[11px] text-slate-400">Anda juga bisa mengetik akun peserta baru langsung di Google Sheet tab <b>PESERTA</b>.</p>
+                            <h2 class="text-base sm:text-lg font-black uppercase tracking-tight">Data Peserta & Verifikasi</h2>
+                            <p class="text-[11px] text-slate-400">Anda juga bisa mengetik akun peserta baru langsung di tab <b>PESERTA</b>.</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <input type="text" x-model="adminSearch" placeholder="Cari peserta..." class="premium-input rounded-xl px-3 py-2 text-xs font-bold w-44 sm:w-56">
@@ -1668,7 +1668,7 @@
                     }
 
                     const jmlKata = this.hitungKata(this.karyaForm.isiNovela);
-                    this.loadingText = 'Menyimpan Karya ke Sheet...';
+                    this.loadingText = 'Menyimpan Karya...';
                     this.isGlobalLoading = true;
 
                     try {
