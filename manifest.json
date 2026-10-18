@@ -1,0 +1,20 @@
+{
+  "name": "Lomba Novela — PT Media Tulisan Manusia",
+  "short_name": "Novela",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0c0d10",
+  "theme_color": "#14161b",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
