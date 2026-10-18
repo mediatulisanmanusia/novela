@@ -428,7 +428,7 @@
                 <button x-show="canInstallPWA && !isAppInstalled" @click="installPWA()" style="display: none;" class="h-8 px-2.5 rounded-xl btn-gold text-[10px] font-extrabold uppercase flex items-center space-x-1 shadow">
                     <i class="fa-solid fa-download text-[10px]"></i><span>Instal</span>
                 </button>
-                <button @click="openModalConfig()" class="w-8 h-8 rounded-xl bg-charcoal border border-charcoal-border text-silver hover:text-gold flex items-center justify-center transition" title="Server">
+                <button x-show="isAdmin()" @click="openModalConfig()" class="w-8 h-8 rounded-xl bg-charcoal border border-charcoal-border text-silver hover:text-gold flex items-center justify-center transition" title="Server">
                     <i class="fa-solid fa-gear text-xs"></i>
                 </button>
             </div>
@@ -682,7 +682,7 @@
                             <i class="fa-solid text-xs" :class="isDark ? 'fa-sun text-gold-light' : 'fa-moon text-white'"></i>
                         </button>
 
-                        <button @click="openModalConfig()" class="w-8 h-8 rounded-lg btn-silver flex items-center justify-center hover:border-gold transition" title="Database">
+                        <button x-show="isAdmin()" @click="openModalConfig()" class="w-8 h-8 rounded-lg btn-silver flex items-center justify-center hover:border-gold transition" title="Database">
                             <i class="fa-solid fa-gear text-xs"></i>
                         </button>
 
