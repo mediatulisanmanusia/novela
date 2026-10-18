@@ -240,7 +240,7 @@
                 </div>
                 <label class="flex items-center space-x-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
                     <input type="checkbox" x-model="manualForm.isVerified" class="w-4 h-4 rounded text-emerald-500">
-                    <span class="font-bold text-emerald-400 text-[11px]">Langsung Centang Aktif (Bisa Kumpul Karya)</span>
+                    <span class="font-bold text-emerald-400 text-[11px]">Langsung Centang Aktif</span>
                 </label>
                 <div class="flex space-x-2 pt-2">
                     <button type="button" @click="showModalAddPeserta = false" class="w-1/2 py-2.5 rounded-xl font-bold btn-silver">Batal</button>
@@ -940,6 +940,7 @@
                                             <option value="Horor">Horor</option>
                                             <option value="Sejarah / Budaya">Sejarah / Budaya</option>
                                             <option value="Religi / Inspiratif">Religi / Inspiratif</option>
+                                            <option value="Lainnya">Lainnya</option>
                                         </select>
                                     </div>
                                 </div>
@@ -997,7 +998,7 @@
 
                                 <!-- Tautan Cadangan Google Drive -->
                                 <div>
-                                    <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-silver mb-1">Tautan Google Drive / Docs (Opsional)</label>
+                                    <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-silver mb-1">Link Tautan Google Drive / Docs *</label>
                                     <input type="url" x-model="karyaForm.linkGdocs" placeholder="https://drive.google.com/..." class="w-full premium-input rounded-xl px-3.5 py-2.5 text-xs font-mono-code">
                                 </div>
 
